@@ -2,6 +2,14 @@
 
 declare(strict_types=1);
 
+/**
+ * Activity Log module for Mailery Platform
+ * @link      https://github.com/maileryio/mailery-activity-log
+ * @package   Mailery\Activity\Log
+ * @license   BSD-3-Clause
+ * @copyright Copyright (c) 2020, Mailery (https://mailery.io/)
+ */
+
 namespace Mailery\Activity\Log\Controller;
 
 use Cycle\ORM\ORMInterface;
@@ -55,12 +63,12 @@ class DefaultController extends Controller
      */
     public function view(Request $request, ORMInterface $orm): Response
     {
-        $userId = $request->getAttribute('id');
-        if (empty($userId) || ($user = $this->getUserRepository($orm)->findByPK($userId)) === null) {
+        $activityLogId = $request->getAttribute('id');
+        if (empty($activityLogId) || ($activityLog = $this->getActivityLogRepository($orm)->findByPK($activityLogId)) === null) {
             return $this->getResponseFactory()->createResponse(404);
         }
 
-        return $this->render('view', compact('user'));
+        return $this->render('view', compact('activityLog'));
     }
 
     /**
