@@ -1,16 +1,20 @@
 {
-    "name": "maileryio/_____",
+    "name": "maileryio/mailery-activity-log",
     "type": "library",
-    "description": "_____",
+    "description": "Activity Log module for Mailery Platform",
     "keywords": [
-        "_____"
+        "mail",
+        "mailer",
+        "activity",
+        "log",
+        "logger"
     ],
-    "homepage": "https://github.com/maileryio/_____",
+    "homepage": "https://github.com/maileryio/mailery-activity-log",
     "license": "BSD-3-Clause",
     "support": {
-        "source": "https://github.com/maileryio/_____",
-        "issues": "https://github.com/maileryio/_____/issues",
-        "wiki": "https://github.com/maileryio/_____/wiki"
+        "source": "https://github.com/maileryio/mailery-activity-log",
+        "issues": "https://github.com/maileryio/mailery-activity-log/issues",
+        "wiki": "https://github.com/maileryio/mailery-activity-log/wiki"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -25,12 +29,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Mailery\\_____\\": "src"
+            "Mailery\\Activity\\Log\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Mailery\\_____\\Tests\\": "tests"
+            "Mailery\\Activity\\Log\\Tests\\": "tests"
         }
     },
     "scripts": {
@@ -41,6 +45,10 @@
     "extra": {
         "branch-alias": {
             "dev-master": "1.0.x-dev"
+        },
+        "config-plugin": {
+            "params": "config/params.php",
+            "web": "config/web.php"
         }
     },
     "config": {
