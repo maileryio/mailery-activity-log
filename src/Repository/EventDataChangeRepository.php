@@ -15,7 +15,7 @@ namespace Mailery\Activity\Log\Repository;
 use Cycle\ORM\Select\Repository;
 use Mailery\Widget\Search\Data\Reader\SelectDataReader;
 
-class ActivityLogRepository extends Repository
+class EventDataChangeRepository extends Repository
 {
     /**
      * @param array $scope

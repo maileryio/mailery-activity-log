@@ -14,8 +14,8 @@ namespace Mailery\Activity\Log\Controller;
 
 use Cycle\ORM\ORMInterface;
 use Mailery\Activity\Log\Controller;
-use Mailery\Activity\Log\Entity\ActivityLog;
-use Mailery\Activity\Log\Repository\ActivityLogRepository;
+use Mailery\Activity\Log\Entity\Event;
+use Mailery\Activity\Log\Repository\EventRepository;
 use Mailery\Activity\Log\Search\DefaultSearchBy;
 use Mailery\Widget\Dataview\Paginator\OffsetPaginator;
 use Mailery\Widget\Search\Data\Reader\Search;
@@ -44,7 +44,7 @@ class DefaultController extends Controller
         $queryParams = $request->getQueryParams();
         $pageNum = (int) ($queryParams['page'] ?? 1);
 
-        $dataReader = $this->getActivityLogRepository($orm)
+        $dataReader = $this->getEventRepository($orm)
             ->getDataReader()
             ->withSearch((new Search())->withSearchPhrase($searchForm->getSearchPhrase())->withSearchBy($searchForm->getSearchBy()))
             ->withSort((new Sort([]))->withOrderString('username'));
@@ -63,20 +63,20 @@ class DefaultController extends Controller
      */
     public function view(Request $request, ORMInterface $orm): Response
     {
-        $activityLogId = $request->getAttribute('id');
-        if (empty($activityLogId) || ($activityLog = $this->getActivityLogRepository($orm)->findByPK($activityLogId)) === null) {
+        $eventId = $request->getAttribute('id');
+        if (empty($eventId) || ($event = $this->getEventRepository($orm)->findByPK($eventId)) === null) {
             return $this->getResponseFactory()->createResponse(404);
         }
 
-        return $this->render('view', compact('activityLog'));
+        return $this->render('view', compact('event'));
     }
 
     /**
      * @param ORMInterface $orm
-     * @return ActivityLogRepository
+     * @return EventRepository
      */
-    private function getActivityLogRepository(ORMInterface $orm): ActivityLogRepository
+    private function getEventRepository(ORMInterface $orm): EventRepository
     {
-        return $orm->getRepository(ActivityLog::class);
+        return $orm->getRepository(Event::class);
     }
 }

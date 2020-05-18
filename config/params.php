@@ -21,7 +21,8 @@ return [
         ->withLabel('Activity log')
         ->withUrl(new SerializableClosure(function (UrlGeneratorInterface $urlGenerator) {
             return $urlGenerator->generate('/activity-log/default/index');
-        })),
+        }))
+        ->withOrder(300),
 
     'cycle.common' => [
         'entityPaths' => [
