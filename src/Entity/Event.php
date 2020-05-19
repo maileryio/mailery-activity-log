@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Mailery\Activity\Log\Entity;
 
 use Cycle\ORM\Relation\Pivoted\PivotedCollection;
-use Cycle\ORM\Relation\Pivoted\PivotedCollectionInterface;
+use Doctrine\Common\Collections\Collection;
 use Mailery\Brand\Entity\Brand;
 use Mailery\User\Entity\User;
 use Mailery\Common\Entity\RoutableEntityInterface;
@@ -83,7 +83,7 @@ class Event implements RoutableEntityInterface
 
     /**
      * @Cycle\Annotated\Annotation\Relation\HasMany(target="Mailery\Activity\Log\Entity\EventDataChange")
-     * @var PivotedCollectionInterface
+     * @var Collection
      */
     private $objectDataChanges;
 
@@ -260,15 +260,15 @@ class Event implements RoutableEntityInterface
     /**
      * @return string
      */
-    public function getObjectDataChanges(): PivotedCollectionInterface
+    public function getObjectDataChanges(): Collection
     {
         return $this->objectDataChanges;
     }
 
     /**
-     * @param PivotedCollectionInterface $objectDataChanges
+     * @param Collection $objectDataChanges
      */
-    public function setObjectDataChanges(PivotedCollectionInterface $objectDataChanges): PivotedCollectionInterface
+    public function setObjectDataChanges(Collection $objectDataChanges): Collection
     {
         $this->objectDataChanges = $objectDataChanges;
 

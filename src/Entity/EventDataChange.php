@@ -15,7 +15,7 @@ namespace Mailery\Activity\Log\Entity;
 /**
  * @Cycle\Annotated\Annotation\Entity(
  *      table = "activity_event_data_changes",
- *      repository = "Mailery\Activity\Log\Repository\DataChangeRepository",
+ *      repository = "Mailery\Activity\Log\Repository\EventDataChangeRepository",
  *      mapper = "Yiisoft\Yii\Cycle\Mapper\TimestampedMapper"
  * )
  */

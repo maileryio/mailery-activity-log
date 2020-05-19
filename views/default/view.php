@@ -51,3 +51,28 @@ $this->setTitle('Activity log #' . $event->getId());
         ?>
     </div>
 </div>
+<div class="mb-2"></div>
+<div class="row">
+    <div class="col-12">
+        <h2 class="h2">Data changes</h2>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Old value</th>
+                    <th>New value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach($event->getObjectDataChanges() as $dataChanges) {
+                    echo '<tr>'
+                            . '<td>' . $dataChanges->getField() . '</td>'
+                            . '<td>' . $dataChanges->getValueOld() . '</td>'
+                            . '<td>' . $dataChanges->getValueNew() . '</td>'
+                        . '</tr>';
+                } ?>
+            </tbody>
+        </table>
+    </div>
+</div>
