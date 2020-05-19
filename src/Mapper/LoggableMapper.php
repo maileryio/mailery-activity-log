@@ -2,7 +2,6 @@
 
 namespace Mailery\Activity\Log\Mapper;
 
-use Cycle\ORM\MapperInterface;
 use Cycle\ORM\Heap\Node;
 use Cycle\ORM\Heap\State;
 use Cycle\ORM\Command\ContextCarrierInterface;
@@ -10,23 +9,15 @@ use Cycle\ORM\Command\CommandInterface;
 use Mailery\Activity\Log\Service\ObjectLoggerService;
 use Mailery\Activity\Log\Model\DataChangeSet;
 use Cycle\ORM\ORMInterface;
+use Mailery\Common\Mapper\BaseMapper;
+use Psr\Container\ContainerInterface;
 
-class ObjectLoggerMapper implements MapperInterface
+class LoggableMapper extends BaseMapper
 {
     /**
-     * @var ORMInterface
+     * @var ContainerInterface
      */
-    private ORMInterface $orm;
-
-    /**
-     * @var MapperInterface
-     */
-    private MapperInterface $mapper;
-
-    /**
-     * @var ObjectLoggerService
-     */
-    private ObjectLoggerService $loggerService;
+    private ContainerInterface $container;
 
     /**
      * @var array
@@ -34,30 +25,14 @@ class ObjectLoggerMapper implements MapperInterface
     private array $pendingLogEntry = [];
 
     /**
-     * @param MapperInterface $mapper
-     * @param ObjectLoggerService $loggerService
+     * @param ContainerInterface $container
+     * @param ORMInterface $orm
+     * @param string $role
      */
-    public function __construct(ORMInterface $orm, MapperInterface $mapper, ObjectLoggerService $loggerService)
+    public function __construct(ContainerInterface $container, ORMInterface $orm, string $role)
     {
-        $this->orm = $orm;
-        $this->mapper = $mapper;
-        $this->loggerService = $loggerService;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function extract($entity): array
-    {
-        return $this->mapper->extract($entity);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getRole(): string
-    {
-        return $this->mapper->getRole();
+        $this->container = $container;
+        parent::__construct($orm, $role);
     }
 
     /**
@@ -65,18 +40,10 @@ class ObjectLoggerMapper implements MapperInterface
      */
     public function hydrate($entity, array $data): object
     {
-        $hydrate = $this->mapper->hydrate($entity, $data);
+        $hydrate = parent::hydrate($entity, $data);
         $this->setPendingLogEntry($entity);
 
         return $hydrate;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function init(array $data): array
-    {
-        return $this->mapper->init($data);
     }
 
     /**
@@ -86,11 +53,12 @@ class ObjectLoggerMapper implements MapperInterface
     {
         $dataChangeSet = (new DataChangeSet($entity))
             ->withAction('Object created')
+            ->withModule($this->getModule())
             ->withNewValues($this->extract($entity));
 
-        return $this->loggerService->queueCreate(
+        return $this->getObjectLoggerService()->queueCreate(
             $dataChangeSet,
-            $this->mapper->queueCreate($entity, $node, $state)
+            parent::queueCreate($entity, $node, $state)
         );
     }
 
@@ -101,11 +69,12 @@ class ObjectLoggerMapper implements MapperInterface
     {
         $dataChangeSet = (new DataChangeSet($entity))
             ->withAction('Object deleted')
+            ->withModule($this->getModule())
             ->withOldValues($this->getPendingLogEntry($entity));
 
-        return $this->loggerService->queueDelete(
+        return $this->getObjectLoggerService()->queueDelete(
             $dataChangeSet,
-            $this->mapper->queueDelete($entity, $node, $state)
+            parent::queueDelete($entity, $node, $state)
         );
     }
 
@@ -116,13 +85,22 @@ class ObjectLoggerMapper implements MapperInterface
     {
         $dataChangeSet = (new DataChangeSet($entity))
             ->withAction('Object updated')
+            ->withModule($this->getModule())
             ->withOldValues($this->getPendingLogEntry($entity))
             ->withNewValues($this->extract($entity));
 
-        return $this->loggerService->queueUpdate(
+        return $this->getObjectLoggerService()->queueUpdate(
             $dataChangeSet,
-            $this->mapper->queueUpdate($entity, $node, $state)
+            parent::queueUpdate($entity, $node, $state)
         );
+    }
+
+    /**
+     * @return string
+     */
+    protected function getModule(): string
+    {
+        return 'Default';
     }
 
     /**
@@ -142,5 +120,13 @@ class ObjectLoggerMapper implements MapperInterface
     {
         $objectId = spl_object_hash($entity);
         $this->pendingLogEntry[$objectId] = $this->extract($entity);
+    }
+
+    /**
+     * @return ObjectLoggerService
+     */
+    private function getObjectLoggerService(): ObjectLoggerService
+    {
+        return $this->container->get(ObjectLoggerService::class);
     }
 }

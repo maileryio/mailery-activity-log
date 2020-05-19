@@ -14,16 +14,18 @@ namespace Mailery\Activity\Log\Entity;
 
 use Cycle\ORM\Relation\Pivoted\PivotedCollection;
 use Cycle\ORM\Relation\Pivoted\PivotedCollectionInterface;
-use Mailery\Activity\Log\SkipLoggingInterface;
+use Mailery\Brand\Entity\Brand;
+use Mailery\User\Entity\User;
+use Mailery\Common\Entity\RoutableEntityInterface;
 
 /**
  * @Cycle\Annotated\Annotation\Entity(
  *      table = "activity_events",
- *      repository = "Mailery\Activity\Log\Repository\EventLogRepository",
+ *      repository = "Mailery\Activity\Log\Repository\EventRepository",
  *      mapper = "Yiisoft\Yii\Cycle\Mapper\TimestampedMapper"
  * )
  */
-class Event implements SkipLoggingInterface
+class Event implements RoutableEntityInterface
 {
     /**
      * @Cycle\Annotated\Annotation\Column(type="primary")
@@ -48,6 +50,18 @@ class Event implements SkipLoggingInterface
      * @var string
      */
     private $module;
+
+    /**
+     * @Cycle\Annotated\Annotation\Relation\BelongsTo(target = "Mailery\Brand\Entity\Brand", nullable = true)
+     * @var Brand|null
+     */
+    private $brand;
+
+    /**
+     * @Cycle\Annotated\Annotation\Relation\BelongsTo(target = "Mailery\User\Entity\User", nullable = true)
+     * @var User|null
+     */
+    private $user;
 
     /**
      * @Cycle\Annotated\Annotation\Column(type="integer", nullable=true)
@@ -98,9 +112,9 @@ class Event implements SkipLoggingInterface
     }
 
     /**
-     * @return \DateTime
+     * @return \DateTimeImmutable
      */
-    public function getDate(): \DateTime
+    public function getDate(): \DateTimeImmutable
     {
         return $this->date;
     }
@@ -152,9 +166,47 @@ class Event implements SkipLoggingInterface
     }
 
     /**
-     * @return int
+     * @return Brand|null
      */
-    public function getObjectId(): int
+    public function getBrand(): ?Brand
+    {
+        return $this->brand;
+    }
+
+    /**
+     * @param Brand $brand
+     * @return self
+     */
+    public function setBrand(Brand $brand): self
+    {
+        $this->brand = $brand;
+
+        return $this;
+    }
+
+    /**
+     * @return User|null
+     */
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param User $user
+     * @return self
+     */
+    public function setUser(User $user): self
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getObjectId(): ?int
     {
         return $this->objectId;
     }
@@ -170,9 +222,9 @@ class Event implements SkipLoggingInterface
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getObjectLabel(): string
+    public function getObjectLabel(): ?string
     {
         return $this->objectLabel;
     }
@@ -188,9 +240,9 @@ class Event implements SkipLoggingInterface
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getObjectClass(): string
+    public function getObjectClass(): ?string
     {
         return $this->objectClass;
     }
@@ -221,5 +273,37 @@ class Event implements SkipLoggingInterface
         $this->objectDataChanges = $objectDataChanges;
 
         return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getEditRouteName(): ?string
+    {
+        return '/activity-log/default/edit';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getEditRouteParams(): array
+    {
+        return ['id' => $this->getId()];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getViewRouteName(): ?string
+    {
+        return '/activity-log/default/view';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getViewRouteParams(): array
+    {
+        return ['id' => $this->getId()];
     }
 }

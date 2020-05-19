@@ -10,6 +10,11 @@ class DataChangeSet
     private string $action;
 
     /**
+     * @var string
+     */
+    private string $module;
+
+    /**
      * @var object
      */
     private object $entity;
@@ -38,6 +43,14 @@ class DataChangeSet
     public function getAction(): string
     {
         return $this->action;
+    }
+
+    /**
+     * @return string
+     */
+    public function getModule(): string
+    {
+        return $this->module;
     }
 
     /**
@@ -72,6 +85,18 @@ class DataChangeSet
     {
         $new = clone $this;
         $new->action = $action;
+
+        return $new;
+    }
+
+    /**
+     * @param string $module
+     * @return self
+     */
+    public function withModule(string $module): self
+    {
+        $new = clone $this;
+        $new->module = $module;
 
         return $new;
     }

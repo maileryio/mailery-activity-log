@@ -3,7 +3,6 @@
 namespace Mailery\Activity\Log\Service;
 
 use Mailery\Activity\Log\Model\DataChangeSet;
-use Mailery\Activity\Log\SkipLoggingInterface;
 use Mailery\Activity\Log\Entity\Event;
 use Mailery\Activity\Log\Entity\EventDataChange;
 use Cycle\ORM\ORMInterface;
@@ -15,24 +14,29 @@ use Cycle\ORM\Command\Database\Update;
 use Cycle\ORM\Command\Database\Insert;
 use Cycle\ORM\Command\Database\Delete;
 use Cycle\ORM\Command\CommandInterface;
+use Mailery\User\Entity\User;
+use Mailery\User\Service\CurrentUserService;
 
 class ObjectLoggerService
 {
+    /**
+     * @var User
+     */
+    private User $user;
+
     /**
      * @var ORMInterface
      */
     private ORMInterface $orm;
 
     /**
+     * @param CurrentUserService $currentUserService
      * @param ORMInterface $orm
-     * @return self
      */
-    public function withOrm(ORMInterface $orm): self
+    public function __construct(CurrentUserService $currentUserService, ORMInterface $orm)
     {
-        $new = clone $this;
-        $new->orm = $orm;
-
-        return $new;
+        $this->orm = $orm;
+        $this->user = $currentUserService->getUser();
     }
 
     /**
@@ -106,10 +110,6 @@ class ObjectLoggerService
     private function getEventCommand(DataChangeSet $dataChangeSet): ?ContextCarrierInterface
     {
         $entity = $dataChangeSet->getEntity();
-        if ($entity instanceof SkipLoggingInterface) {
-            return null;
-        }
-
         $oldValues = $dataChangeSet->getOldValues();
         $dataChanges = $dataChangeSet->getChanges();
 
@@ -117,12 +117,17 @@ class ObjectLoggerService
             return null;
         }
 
-
         $event = new Event();
         $event->setAction($dataChangeSet->getAction());
         $event->setDate(new \DateTime('now'));
-        $event->setModule('Default');
+        $event->setModule($dataChangeSet->getModule());
 
+        if ($this->user !== null) {
+            $event->setUser($this->user);
+        }
+        if (method_exists($entity, 'getBrand') && ($brand = $entity->getBrand()) !== null) {
+            $event->setBrand($brand);
+        }
         if (method_exists($entity, 'getId') && $entity->getId()) {
             $event->setObjectId($entity->getId());
         }

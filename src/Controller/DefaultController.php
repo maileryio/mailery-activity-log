@@ -27,7 +27,7 @@ use Yiisoft\Data\Reader\Sort;
 
 class DefaultController extends Controller
 {
-    private const PAGINATION_INDEX = 10;
+    private const PAGINATION_INDEX = 20;
 
     /**
      * @param Request $request
@@ -47,7 +47,7 @@ class DefaultController extends Controller
         $dataReader = $this->getEventRepository($orm)
             ->getDataReader()
             ->withSearch((new Search())->withSearchPhrase($searchForm->getSearchPhrase())->withSearchBy($searchForm->getSearchBy()))
-            ->withSort((new Sort([]))->withOrderString('username'));
+            ->withSort((new Sort([]))->withOrder(['id' => 'DESC']));
 
         $paginator = (new OffsetPaginator($dataReader))
             ->withPageSize(self::PAGINATION_INDEX)

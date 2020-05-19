@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace Mailery\Activity\Log\Entity;
 
-use Mailery\Activity\Log\SkipLoggingInterface;
-
 /**
  * @Cycle\Annotated\Annotation\Entity(
  *      table = "activity_event_data_changes",
@@ -21,7 +19,7 @@ use Mailery\Activity\Log\SkipLoggingInterface;
  *      mapper = "Yiisoft\Yii\Cycle\Mapper\TimestampedMapper"
  * )
  */
-class EventDataChange implements SkipLoggingInterface
+class EventDataChange
 {
     /**
      * @Cycle\Annotated\Annotation\Column(type="primary")
