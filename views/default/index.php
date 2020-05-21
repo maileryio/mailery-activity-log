@@ -77,15 +77,15 @@ $this->setTitle('Activity log');
                                 $entity->setId($data->getObjectId());
                             }
 
-                            $params = [];
+                            $routeParams = [];
                             if ($data->getBrand() !== null) {
-                                $params = ['brandId' => $data->getBrand()->getId()];
+                                $routeParams = ['brandId' => $data->getBrand()->getId()];
                             }
 
                             return EntityViewLink::widget()
                                 ->entity($entity)
                                 ->label($data->getObjectLabel())
-                                ->params($params);
+                                ->routeParams($routeParams);
                         }
 
                         return $data->getObjectLabel();

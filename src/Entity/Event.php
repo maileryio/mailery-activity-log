@@ -212,9 +212,9 @@ class Event implements RoutableEntityInterface
     }
 
     /**
-     * @param int $objectId
+     * @param int|null $objectId
      */
-    public function setObjectId(int $objectId)
+    public function setObjectId(?int $objectId)
     {
         $this->objectId = $objectId;
 

@@ -2,6 +2,7 @@
 
 use Mailery\Activity\Log\Entity\Event;
 use Mailery\Widget\Dataview\DetailView;
+use Mailery\Web\Widget\EntityViewLink;
 
 /** @var Mailery\Web\View\WebView $this */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
@@ -36,15 +37,66 @@ $this->setTitle('Activity log #' . $event->getId());
             ])
             ->attributes([
                 [
-                    'label' => 'Id',
-                    'value' => function (Event $data, $index) {
-                        return $data->getId();
-                    },
-                ],
-                [
                     'label' => 'Date',
                     'value' => function (Event $data, $index) {
                         return $data->getDate()->format('Y-m-d H:i:s');
+                    },
+                ],
+                [
+                    'label' => 'User',
+                    'value' => function (Event $data, $index) {
+                        if (($user = $data->getUser()) === null) {
+                            return null;
+                        }
+
+                        return EntityViewLink::widget()
+                            ->entity($user)
+                            ->label($user->getUsername());
+                    },
+                ],
+                [
+                    'label' => 'Module',
+                    'value' => function (Event $data, $index) {
+                        return $data->getModule();
+                    },
+                ],
+                [
+                    'label' => 'Action',
+                    'value' => function (Event $data, $index) {
+                        return $data->getAction();
+                    },
+                ],
+                [
+                    'label' => 'Object',
+                    'value' => function (Event $data, $index) {
+                        if (($className = $data->getObjectClass()) !== null && class_exists($className)) {
+                            $entity = new $className;
+
+                            if ($data->getObjectId() && method_exists($entity, 'setId')) {
+                                $entity->setId($data->getObjectId());
+                            }
+
+                            $routeParams = [];
+                            if ($data->getBrand() !== null) {
+                                $routeParams = ['brandId' => $data->getBrand()->getId()];
+                            }
+
+                            return EntityViewLink::widget()
+                                ->entity($entity)
+                                ->label($data->getObjectLabel())
+                                ->routeParams($routeParams);
+                        }
+
+                        return $data->getObjectLabel();
+                    },
+                ],
+                [
+                    'label' => 'Object Id',
+                    'value' => function (Event $data, $index) {
+                        if ($data->getObjectClass() && $data->getObjectId()) {
+                            return $data->getObjectClass() . '#' . $data->getObjectId();
+                        }
+                        return null;
                     },
                 ],
             ]);

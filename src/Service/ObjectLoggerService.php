@@ -16,6 +16,7 @@ use Cycle\ORM\Command\Database\Delete;
 use Cycle\ORM\Command\CommandInterface;
 use Mailery\User\Entity\User;
 use Mailery\User\Service\CurrentUserService;
+use Mailery\Activity\Log\Entity\LoggableEntityInterface;
 
 class ObjectLoggerService
 {
@@ -53,10 +54,16 @@ class ObjectLoggerService
         $eventCommand->waitContext('object_id');
         $insert->forward(Insert::INSERT_ID, $eventCommand, 'object_id');
 
-        foreach ($eventCommand->getCommands()[1]->getCommands() as $command) {
-            $data = $command->getData();
-            if ($data['field'] === 'id') {
-                $insert->forward(Insert::INSERT_ID, $command, 'value_new');
+        foreach ($eventCommand->getCommands() as $sequence) {
+            if (!$sequence instanceof Sequence) {
+                continue;
+            }
+
+            foreach ($sequence->getCommands() as $command) {
+                $data = $command->getData();
+                if (isset($data['field']) && $data['field'] === 'id') {
+                    $insert->forward(Insert::INSERT_ID, $command, 'value_new');
+                }
             }
         }
 
@@ -110,6 +117,11 @@ class ObjectLoggerService
     private function getEventCommand(DataChangeSet $dataChangeSet): ?ContextCarrierInterface
     {
         $entity = $dataChangeSet->getEntity();
+
+        if (!$entity instanceof LoggableEntityInterface) {
+            return null;
+        }
+
         $oldValues = $dataChangeSet->getOldValues();
         $dataChanges = $dataChangeSet->getChanges();
 
@@ -121,6 +133,9 @@ class ObjectLoggerService
         $event->setAction($dataChangeSet->getAction());
         $event->setDate(new \DateTime('now'));
         $event->setModule($dataChangeSet->getModule());
+        $event->setObjectId($entity->getObjectId());
+        $event->setObjectLabel($entity->getObjectLabel());
+        $event->setObjectClass($entity->getObjectClass());
 
         if ($this->user !== null) {
             $event->setUser($this->user);
@@ -128,14 +143,6 @@ class ObjectLoggerService
         if (method_exists($entity, 'getBrand') && ($brand = $entity->getBrand()) !== null) {
             $event->setBrand($brand);
         }
-        if (method_exists($entity, 'getId') && $entity->getId()) {
-            $event->setObjectId($entity->getId());
-        }
-        if (method_exists($entity, '__toString')) {
-            $event->setObjectLabel((string) $entity);
-        }
-
-        $event->setObjectClass(get_class($entity));
 
         foreach ($dataChanges as $field => $value) {
             $eventDataChange = new EventDataChange();
