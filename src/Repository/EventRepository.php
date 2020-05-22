@@ -26,4 +26,15 @@ class EventRepository extends Repository
     {
         return new SelectDataReader($this->select()->where($scope)->orderBy($orderBy));
     }
+
+    /**
+     * @return self
+     */
+    public function withLoadBrand(): self
+    {
+        $repo = clone $this;
+        $repo->select->load('brand');
+
+        return $repo;
+    }
 }

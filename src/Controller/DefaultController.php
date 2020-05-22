@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Mailery\Activity\Log\Controller;
 
 use Cycle\ORM\ORMInterface;
-use Mailery\Activity\Log\Controller;
+use Mailery\Common\Web\Controller;
 use Mailery\Activity\Log\Entity\Event;
 use Mailery\Activity\Log\Repository\EventRepository;
 use Mailery\Activity\Log\Search\DefaultSearchBy;
@@ -31,11 +31,10 @@ class DefaultController extends Controller
 
     /**
      * @param Request $request
-     * @param ORMInterface $orm
      * @param SearchForm $searchForm
      * @return Response
      */
-    public function index(Request $request, ORMInterface $orm, SearchForm $searchForm): Response
+    public function index(Request $request, SearchForm $searchForm): Response
     {
         $searchForm = $searchForm->withSearchByList(new SearchByList([
             new DefaultSearchBy(),
@@ -44,7 +43,7 @@ class DefaultController extends Controller
         $queryParams = $request->getQueryParams();
         $pageNum = (int) ($queryParams['page'] ?? 1);
 
-        $dataReader = $this->getEventRepository($orm)
+        $dataReader = $this->getEventRepository()
             ->getDataReader()
             ->withSearch((new Search())->withSearchPhrase($searchForm->getSearchPhrase())->withSearchBy($searchForm->getSearchBy()))
             ->withSort((new Sort([]))->withOrder(['id' => 'DESC']));
@@ -58,13 +57,12 @@ class DefaultController extends Controller
 
     /**
      * @param Request $request
-     * @param ORMInterface $orm
      * @return Response
      */
-    public function view(Request $request, ORMInterface $orm): Response
+    public function view(Request $request): Response
     {
         $eventId = $request->getAttribute('id');
-        if (empty($eventId) || ($event = $this->getEventRepository($orm)->findByPK($eventId)) === null) {
+        if (empty($eventId) || ($event = $this->getEventRepository()->findByPK($eventId)) === null) {
             return $this->getResponseFactory()->createResponse(404);
         }
 
@@ -72,11 +70,12 @@ class DefaultController extends Controller
     }
 
     /**
-     * @param ORMInterface $orm
      * @return EventRepository
      */
-    private function getEventRepository(ORMInterface $orm): EventRepository
+    private function getEventRepository(): EventRepository
     {
-        return $orm->getRepository(Event::class);
+        return $this->getOrm()
+            ->getRepository(Event::class)
+            ->withLoadBrand();
     }
 }

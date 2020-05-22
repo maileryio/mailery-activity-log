@@ -94,12 +94,12 @@ class ObjectLoggerService
 
     /**
      * @param DataChangeSet $dataChangeSet
-     * @param Delete $delete
+     * @param CommandInterface $delete
      * @return CommandInterface
      */
-    public function queueDelete(DataChangeSet $dataChangeSet, Delete $delete): CommandInterface
+    public function queueDelete(DataChangeSet $dataChangeSet, CommandInterface $delete): CommandInterface
     {
-        if (($eventCommand = $this->getEventCommand($dataChangeSet)) === null) {
+        if (($eventCommand = $this->getEventCommand($dataChangeSet, true)) === null) {
             return $delete;
         }
 
@@ -112,9 +112,10 @@ class ObjectLoggerService
 
     /**
      * @param DataChangeSet $dataChangeSet
+     * @param bool $isDeleted
      * @return ContextCarrierInterface|null
      */
-    private function getEventCommand(DataChangeSet $dataChangeSet): ?ContextCarrierInterface
+    private function getEventCommand(DataChangeSet $dataChangeSet, bool $isDeleted = false): ?ContextCarrierInterface
     {
         $entity = $dataChangeSet->getEntity();
 
@@ -133,9 +134,12 @@ class ObjectLoggerService
         $event->setAction($dataChangeSet->getAction());
         $event->setDate(new \DateTime('now'));
         $event->setModule($dataChangeSet->getModule());
-        $event->setObjectId($entity->getObjectId());
-        $event->setObjectLabel($entity->getObjectLabel());
-        $event->setObjectClass($entity->getObjectClass());
+
+        if (!$isDeleted) {
+            $event->setObjectId($entity->getObjectId());
+            $event->setObjectLabel($entity->getObjectLabel());
+            $event->setObjectClass($entity->getObjectClass());
+        }
 
         if ($this->user !== null) {
             $event->setUser($this->user);

@@ -4,8 +4,8 @@ use Mailery\Activity\Log\Entity\Event;
 use Mailery\Widget\Dataview\Columns\DataColumn;
 use Mailery\Widget\Dataview\GridView;
 use Mailery\Widget\Dataview\GridView\LinkPager;
-use Yiisoft\Html\Html;
 use Mailery\Web\Widget\EntityViewLink;
+use Mailery\Brand\Exception\BrandRequiredException;
 
 /** @var Mailery\Web\View\WebView $this */
 /** @var Yiisoft\Aliases\Aliases $aliases */
@@ -82,10 +82,13 @@ $this->setTitle('Activity log');
                                 $routeParams = ['brandId' => $data->getBrand()->getId()];
                             }
 
-                            return EntityViewLink::widget()
-                                ->entity($entity)
-                                ->label($data->getObjectLabel())
-                                ->routeParams($routeParams);
+                            try {
+                                return EntityViewLink::widget()
+                                    ->entity($entity)
+                                    ->label($data->getObjectLabel())
+                                    ->routeParams($routeParams)
+                                    ->render();
+                            } catch (BrandRequiredException $e) {}
                         }
 
                         return $data->getObjectLabel();
