@@ -85,6 +85,7 @@ $this->setTitle('Activity log #' . $event->getId());
                             try {
                                 return EntityViewLink::widget()
                                     ->entity($entity)
+                                    ->reload(true)
                                     ->label($data->getObjectLabel())
                                     ->routeParams($routeParams)
                                     ->render();

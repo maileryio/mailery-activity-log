@@ -47,7 +47,7 @@ class ObjectLoggerService
      */
     public function queueCreate(DataChangeSet $dataChangeSet, Insert $insert): ContextCarrierInterface
     {
-        if (($eventCommand = $this->getEventCommand($dataChangeSet)) === null) {
+        if (($eventCommand = $this->getEventCommand($dataChangeSet, $insert)) === null) {
             return $insert;
         }
 
@@ -62,14 +62,19 @@ class ObjectLoggerService
             foreach ($sequence->getCommands() as $command) {
                 $data = $command->getData();
                 if (isset($data['field']) && $data['field'] === 'id') {
+                    $command->waitContext('value_new');
                     $insert->forward(Insert::INSERT_ID, $command, 'value_new');
                 }
             }
         }
 
+        $entity = clone $dataChangeSet->getEntity();
+        $eventUpdateCommand = new UpdateEventCommand($this->orm, $entity, $eventCommand->getPrimary());
+
         $sequence = new ContextSequence();
         $sequence->addPrimary($insert);
         $sequence->addCommand($eventCommand);
+        $sequence->addCommand($eventUpdateCommand);
 
         return $sequence;
     }
@@ -81,7 +86,7 @@ class ObjectLoggerService
      */
     public function queueUpdate(DataChangeSet $dataChangeSet, Update $update): ContextCarrierInterface
     {
-        if (($eventCommand = $this->getEventCommand($dataChangeSet)) === null) {
+        if (($eventCommand = $this->getEventCommand($dataChangeSet, $update)) === null) {
             return $update;
         }
 
@@ -99,7 +104,7 @@ class ObjectLoggerService
      */
     public function queueDelete(DataChangeSet $dataChangeSet, CommandInterface $delete): CommandInterface
     {
-        if (($eventCommand = $this->getEventCommand($dataChangeSet, true)) === null) {
+        if (($eventCommand = $this->getEventCommand($dataChangeSet, $delete)) === null) {
             return $delete;
         }
 
@@ -112,10 +117,10 @@ class ObjectLoggerService
 
     /**
      * @param DataChangeSet $dataChangeSet
-     * @param bool $isDeleted
+     * @param CommandInterface $delete
      * @return ContextCarrierInterface|null
      */
-    private function getEventCommand(DataChangeSet $dataChangeSet, bool $isDeleted = false): ?ContextCarrierInterface
+    private function getEventCommand(DataChangeSet $dataChangeSet, CommandInterface $delete): ?ContextCarrierInterface
     {
         $entity = $dataChangeSet->getEntity();
 
@@ -135,7 +140,7 @@ class ObjectLoggerService
         $event->setDate(new \DateTime('now'));
         $event->setModule($dataChangeSet->getModule());
 
-        if (!$isDeleted) {
+        if (!$delete instanceof Delete) {
             $event->setObjectId($entity->getObjectId());
             $event->setObjectLabel($entity->getObjectLabel());
             $event->setObjectClass($entity->getObjectClass());

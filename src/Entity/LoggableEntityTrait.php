@@ -7,6 +7,17 @@ trait LoggableEntityTrait
     /**
      * @inheritdoc
      */
+    public function setObjectId($id): self
+    {
+        if (method_exists($this, 'setId') && $this->setId($id)) {
+            $this->setId($id);
+        }
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getObjectId(): ?string
     {
         if (method_exists($this, 'getId') && $this->getId()) {
