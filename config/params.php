@@ -24,8 +24,8 @@ return [
         }))
         ->withOrder(300),
 
-    'cycle.common' => [
-        'entityPaths' => [
+    'yiisoft/yii-cycle' => [
+        'annotated-entity-paths' => [
             '@vendor/maileryio/mailery-activity-log/src/Entity',
         ],
     ],
