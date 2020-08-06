@@ -70,13 +70,7 @@ $this->setTitle('Activity log #' . $event->getId());
                 [
                     'label' => 'Object',
                     'value' => function (Event $data, $index) {
-                        if (($className = $data->getObjectClass()) !== null && class_exists($className)) {
-                            $entity = new $className;
-
-                            if ($data->getObjectId() && method_exists($entity, 'setId')) {
-                                $entity->setId($data->getObjectId());
-                            }
-
+                        if (($entity = $data->getEntity()) !== null) {
                             $routeParams = [];
                             if ($data->getBrand() !== null) {
                                 $routeParams = ['brandId' => $data->getBrand()->getId()];
@@ -123,10 +117,15 @@ $this->setTitle('Activity log #' . $event->getId());
             </thead>
             <tbody>
                 <?php foreach($event->getObjectDataChanges() as $dataChanges) {
+                    $valueMask = null;
+                    if (($entity = $event->getEntity()) !== null && in_array($dataChanges->getField(), $entity->getMaskedFields())) {
+                        $valueMask = '******';
+                    }
+
                     echo '<tr>'
                             . '<td>' . $dataChanges->getField() . '</td>'
-                            . '<td>' . $dataChanges->getValueOld() . '</td>'
-                            . '<td>' . $dataChanges->getValueNew() . '</td>'
+                            . '<td>' . ($valueMask ?? $dataChanges->getValueOld()) . '</td>'
+                            . '<td>' . ($valueMask ?? $dataChanges->getValueNew()) . '</td>'
                         . '</tr>';
                 } ?>
             </tbody>

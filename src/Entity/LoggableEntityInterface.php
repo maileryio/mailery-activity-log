@@ -24,4 +24,9 @@ interface LoggableEntityInterface
      * @return string|null
      */
     public function getObjectClass(): ?string;
+
+    /**
+     * @return array
+     */
+    public function getMaskedFields(): array;
 }

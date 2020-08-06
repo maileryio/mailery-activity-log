@@ -44,4 +44,12 @@ trait LoggableEntityTrait
     {
         return get_class($this);
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function getMaskedFields(): array
+    {
+        return [];
+    }
 }

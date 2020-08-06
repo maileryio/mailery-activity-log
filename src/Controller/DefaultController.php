@@ -42,9 +42,14 @@ class DefaultController extends Controller
 
         $queryParams = $request->getQueryParams();
         $pageNum = (int) ($queryParams['page'] ?? 1);
+        $scope = array_filter([
+            'module' => $queryParams['module'] ?? null,
+            'objectId' => $queryParams['objectId'] ?? null,
+            'objectClass' => $queryParams['objectClass'] ?? null,
+        ]);
 
         $dataReader = $this->getEventRepository()
-            ->getDataReader()
+            ->getDataReader($scope)
             ->withSearch((new Search())->withSearchPhrase($searchForm->getSearchPhrase())->withSearchBy($searchForm->getSearchBy()))
             ->withSort((new Sort([]))->withOrder(['id' => 'DESC']));
 

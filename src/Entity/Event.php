@@ -306,4 +306,20 @@ class Event implements RoutableEntityInterface
     {
         return ['id' => $this->getId()];
     }
+
+    /**
+     * @return LoggableEntityInterface|null
+     */
+    public function getEntity(): ?LoggableEntityInterface
+    {
+        if (($className = $this->getObjectClass()) !== null && class_exists($className)) {
+            $entity = new $className;
+
+            if ($this->getObjectId() && method_exists($entity, 'setId')) {
+                $entity->setId($this->getObjectId());
+            }
+            return $entity;
+        }
+        return null;
+    }
 }
