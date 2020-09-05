@@ -52,13 +52,13 @@ class Event implements RoutableEntityInterface
     private $module;
 
     /**
-     * @Cycle\Annotated\Annotation\Relation\BelongsTo(target = "Mailery\Brand\Entity\Brand", nullable = true)
+     * @Cycle\Annotated\Annotation\Relation\BelongsTo(target = "Mailery\Brand\Entity\Brand", nullable = true, fkAction = "SET NULL")
      * @var Brand|null
      */
     private $brand;
 
     /**
-     * @Cycle\Annotated\Annotation\Relation\BelongsTo(target = "Mailery\User\Entity\User", nullable = true)
+     * @Cycle\Annotated\Annotation\Relation\BelongsTo(target = "Mailery\User\Entity\User", nullable = true, fkAction = "SET NULL")
      * @var User|null
      */
     private $user;

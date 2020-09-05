@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Mailery\Activity\Log\Repository;
 
 use Cycle\ORM\Select\Repository;
-use Mailery\Widget\Search\Data\Reader\SelectDataReader;
+use Yiisoft\Yii\Cycle\DataReader\SelectDataReader;
 
 class EventRepository extends Repository
 {

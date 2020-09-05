@@ -15,7 +15,7 @@ use Cycle\ORM\Command\Database\Insert;
 use Cycle\ORM\Command\Database\Delete;
 use Cycle\ORM\Command\CommandInterface;
 use Mailery\User\Entity\User;
-use Mailery\User\Service\CurrentUserService;
+use Mailery\User\Service\UserService;
 use Mailery\Activity\Log\Entity\LoggableEntityInterface;
 
 class ObjectLoggerService
@@ -31,13 +31,13 @@ class ObjectLoggerService
     private ORMInterface $orm;
 
     /**
-     * @param CurrentUserService $currentUserService
+     * @param UserService $userService
      * @param ORMInterface $orm
      */
-    public function __construct(CurrentUserService $currentUserService, ORMInterface $orm)
+    public function __construct(UserService $userService, ORMInterface $orm)
     {
         $this->orm = $orm;
-        $this->user = $currentUserService->getUser();
+        $this->user = $userService->getCurrentUser();
     }
 
     /**

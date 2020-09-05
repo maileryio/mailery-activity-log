@@ -10,10 +10,8 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2020, Mailery (https://mailery.io/)
  */
 
-use Mailery\Activity\Log\Controller\DefaultController;
 use Mailery\Menu\MenuItem;
 use Opis\Closure\SerializableClosure;
-use Yiisoft\Router\Route;
 use Yiisoft\Router\UrlGeneratorInterface;
 
 return [
@@ -27,15 +25,6 @@ return [
     'yiisoft/yii-cycle' => [
         'annotated-entity-paths' => [
             '@vendor/maileryio/mailery-activity-log/src/Entity',
-        ],
-    ],
-
-    'router' => [
-        'routes' => [
-            '/activity-log/default/index' => Route::get('/activity-log/default/index', [DefaultController::class, 'index'])
-                ->name('/activity-log/default/index'),
-            '/activity-log/default/view' => Route::get('/activity-log/default/view/{id:\d+}', [DefaultController::class, 'view'])
-                ->name('/activity-log/default/view'),
         ],
     ],
 ];
