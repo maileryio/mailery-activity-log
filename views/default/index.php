@@ -7,7 +7,7 @@ use Mailery\Widget\Dataview\GridView\LinkPager;
 use Mailery\Web\Widget\EntityViewLink;
 use Mailery\Brand\Exception\BrandRequiredException;
 
-/** @var Mailery\Web\View\WebView $this */
+/** @var Yiisoft\Yii\WebView $this */
 /** @var Yiisoft\Aliases\Aliases $aliases */
 /** @var Yiisoft\Router\UrlGeneratorInterface $urlGenerator */
 /** @var Yiisoft\Data\Reader\DataReaderInterface $dataReader*/

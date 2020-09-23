@@ -5,7 +5,7 @@ use Mailery\Widget\Dataview\DetailView;
 use Mailery\Web\Widget\EntityViewLink;
 use Mailery\Brand\Exception\BrandRequiredException;
 
-/** @var Mailery\Web\View\WebView $this */
+/** @var Yiisoft\Yii\WebView $this */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
 /** @var Mailery\Activity\Log\Entity\Event $event */
 $this->setTitle('Activity log #' . $event->getId());

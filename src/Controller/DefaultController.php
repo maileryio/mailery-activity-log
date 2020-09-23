@@ -16,7 +16,7 @@ use Mailery\Activity\Log\Repository\EventRepository;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Mailery\Activity\Log\Service\EventService;
-use Mailery\Web\ViewRenderer;
+use Yiisoft\Yii\View\ViewRenderer;
 use Psr\Http\Message\ResponseFactoryInterface as ResponseFactory;
 
 class DefaultController
@@ -45,7 +45,10 @@ class DefaultController
      */
     public function __construct(ViewRenderer $viewRenderer, ResponseFactory $responseFactory, EventRepository $eventRepo)
     {
-        $this->viewRenderer = $viewRenderer->withController($this);
+        $this->viewRenderer = $viewRenderer
+            ->withController($this)
+            ->withViewBasePath(dirname(dirname(__DIR__)) . '/views');
+
         $this->responseFactory = $responseFactory;
         $this->eventRepo = $eventRepo;
     }
