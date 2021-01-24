@@ -14,8 +14,7 @@ use Cycle\ORM\Command\Database\Update;
 use Cycle\ORM\Command\Database\Insert;
 use Cycle\ORM\Command\Database\Delete;
 use Cycle\ORM\Command\CommandInterface;
-use Mailery\User\Entity\User;
-use Mailery\User\Service\UserService;
+use Yiisoft\User\User;
 use Mailery\Activity\Log\Entity\LoggableEntityInterface;
 
 class ObjectLoggerService
@@ -31,13 +30,13 @@ class ObjectLoggerService
     private ORMInterface $orm;
 
     /**
-     * @param UserService $userService
+     * @param User $user
      * @param ORMInterface $orm
      */
-    public function __construct(UserService $userService, ORMInterface $orm)
+    public function __construct(User $user, ORMInterface $orm)
     {
+        $this->user = $user;
         $this->orm = $orm;
-        $this->user = $userService->getCurrentUser();
     }
 
     /**
@@ -146,8 +145,8 @@ class ObjectLoggerService
             $event->setObjectClass($entity->getObjectClass());
         }
 
-        if ($this->user !== null) {
-            $event->setUser($this->user);
+        if (($identity = $this->user->getIdentity()) !== null) {
+            $event->setUser($identity);
         }
         if (method_exists($entity, 'getBrand') && ($brand = $entity->getBrand()) !== null) {
             $event->setBrand($brand);
