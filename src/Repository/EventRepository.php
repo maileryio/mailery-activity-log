@@ -13,18 +13,19 @@ declare(strict_types=1);
 namespace Mailery\Activity\Log\Repository;
 
 use Cycle\ORM\Select\Repository;
-use Yiisoft\Yii\Cycle\DataReader\SelectDataReader;
+use Yiisoft\Yii\Cycle\Data\Reader\EntityReader;
+use Yiisoft\Data\Reader\DataReaderInterface;
 
 class EventRepository extends Repository
 {
     /**
      * @param array $scope
      * @param array $orderBy
-     * @return SelectDataReader
+     * @return DataReaderInterface
      */
-    public function getDataReader(array $scope = [], array $orderBy = []): SelectDataReader
+    public function getDataReader(array $scope = [], array $orderBy = []): DataReaderInterface
     {
-        return new SelectDataReader($this->select()->where($scope)->orderBy($orderBy));
+        return new EntityReader($this->select()->where($scope)->orderBy($orderBy));
     }
 
     /**
