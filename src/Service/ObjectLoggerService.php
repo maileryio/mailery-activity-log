@@ -145,7 +145,7 @@ class ObjectLoggerService
             $event->setObjectClass($entity->getObjectClass());
         }
 
-        if (($identity = $this->user->getIdentity()) !== null) {
+        if (!$this->user->isGuest() && ($identity = $this->user->getIdentity()) !== null) {
             $event->setUser($identity);
         }
         if (method_exists($entity, 'getBrand') && ($brand = $entity->getBrand()) !== null) {
