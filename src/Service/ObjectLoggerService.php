@@ -5,6 +5,8 @@ namespace Mailery\Activity\Log\Service;
 use Mailery\Activity\Log\Model\DataChangeSet;
 use Mailery\Activity\Log\Entity\Event;
 use Mailery\Activity\Log\Entity\EventDataChange;
+use Mailery\Activity\Log\Entity\LoggableEntityInterface;
+use Mailery\User\Service\CurrentUserService;
 use Cycle\ORM\ORMInterface;
 use Cycle\ORM\Transaction;
 use Cycle\ORM\Command\Branch\ContextSequence;
@@ -14,15 +16,13 @@ use Cycle\ORM\Command\Database\Update;
 use Cycle\ORM\Command\Database\Insert;
 use Cycle\ORM\Command\Database\Delete;
 use Cycle\ORM\Command\CommandInterface;
-use Yiisoft\User\User;
-use Mailery\Activity\Log\Entity\LoggableEntityInterface;
 
 class ObjectLoggerService
 {
     /**
-     * @var User
+     * @var CurrentUserService
      */
-    private User $user;
+    private CurrentUserService $currentUser;
 
     /**
      * @var ORMInterface
@@ -30,12 +30,12 @@ class ObjectLoggerService
     private ORMInterface $orm;
 
     /**
-     * @param User $user
+     * @param CurrentUserService $currentUser
      * @param ORMInterface $orm
      */
-    public function __construct(User $user, ORMInterface $orm)
+    public function __construct(CurrentUserService $currentUser, ORMInterface $orm)
     {
-        $this->user = $user;
+        $this->currentUser = $currentUser;
         $this->orm = $orm;
     }
 
@@ -145,8 +145,8 @@ class ObjectLoggerService
             $event->setObjectClass($entity->getObjectClass());
         }
 
-        if (!$this->user->isGuest() && ($identity = $this->user->getIdentity()) !== null) {
-            $event->setUser($identity);
+        if (($user = $this->currentUser->getUser()) !== null) {
+            $event->setUser($user);
         }
         if (method_exists($entity, 'getBrand') && ($brand = $entity->getBrand()) !== null) {
             $event->setBrand($brand);
