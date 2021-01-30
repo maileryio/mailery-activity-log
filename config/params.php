@@ -10,17 +10,26 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2020, Mailery (https://mailery.io/)
  */
 
-use Mailery\Menu\MenuItem;
-use Opis\Closure\SerializableClosure;
 use Yiisoft\Router\UrlGeneratorInterface;
 
 return [
-    'activityLogNavbarMenuItem' => (new MenuItem())
-        ->withLabel('Activity log')
-        ->withUrl(new SerializableClosure(function (UrlGeneratorInterface $urlGenerator) {
-            return $urlGenerator->generate('/activity-log/default/index');
-        }))
-        ->withOrder(300),
+    'maileryio/mailery-menu-navbar' => [
+        'items' => [
+            'system' => [
+                'items' => [
+                    'activity-log' => [
+                        'label' => static function () {
+                            return 'Activity log';
+                        },
+                        'url' => static function (UrlGeneratorInterface $urlGenerator) {
+                            return $urlGenerator->generate('/activity-log/default/index');
+                        },
+                        'order' => 300,
+                    ],
+                ],
+            ]
+        ],
+    ],
 
     'yiisoft/yii-cycle' => [
         'annotated-entity-paths' => [
