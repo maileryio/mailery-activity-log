@@ -25,7 +25,7 @@ class EventRepository extends Repository
      */
     public function getDataReader(array $scope = [], array $orderBy = []): DataReaderInterface
     {
-        return new EntityReader($this->select()->where($scope)->orderBy($orderBy));
+        return new EntityReader($this->withLoadBrand()->select()->where($scope)->orderBy($orderBy));
     }
 
     /**
