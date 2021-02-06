@@ -13,7 +13,7 @@ $this->setTitle('Activity log #' . $event->getId());
 ?><div class="row">
     <div class="col-12">
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
-            <h1 class="h2">Activity log #<?= $event->getId(); ?></h1>
+            <h1 class="h3">Activity log #<?= $event->getId(); ?></h1>
             <div class="btn-toolbar float-right">
                 <div class="btn-toolbar float-right">
                     <a class="btn btn-sm btn-outline-secondary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/activity-log/default/index'); ?>">
@@ -105,7 +105,7 @@ $this->setTitle('Activity log #' . $event->getId());
 <div class="mb-2"></div>
 <div class="row">
     <div class="col-12">
-        <h2 class="h2">Data changes</h2>
+        <h2 class="h4">Data changes</h2>
 
         <table class="table">
             <thead>

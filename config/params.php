@@ -24,7 +24,6 @@ return [
                         'url' => static function (UrlGeneratorInterface $urlGenerator) {
                             return $urlGenerator->generate('/activity-log/default/index');
                         },
-                        'order' => 300,
                     ],
                 ],
             ]
