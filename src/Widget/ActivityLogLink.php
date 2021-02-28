@@ -15,6 +15,11 @@ class ActivityLogLink extends Widget
     private ?string $tag = 'a';
 
     /**
+     * @var bool|null
+     */
+    private ?bool $encode = false;
+
+    /**
      * @var string|null
      */
     private ?string $module = null;
@@ -64,6 +69,17 @@ class ActivityLogLink extends Widget
     public function tag(string $tag): self
     {
         $this->tag = $tag;
+
+        return $this;
+    }
+
+    /**
+     * @param bool $encode
+     * @return self
+     */
+    public function encode(bool $encode): self
+    {
+        $this->encode = $encode;
 
         return $this;
     }
@@ -146,7 +162,8 @@ class ActivityLogLink extends Widget
             $this->options
         );
 
-        return Html::tag($this->tag, $this->label, $options);
+        return Html::tag($this->tag, $this->label, $options)
+            ->encode($this->encode);
     }
 
     /**
