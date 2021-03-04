@@ -29,18 +29,20 @@ trait LoggableEntityTrait
     /**
      * @inheritdoc
      */
-    public function getObjectLabel(): ?string
+    public function getObjectLabel(): string
     {
         if (method_exists($this, '__toString')) {
             return $this->__toString();
         }
-        return null;
+
+        $path = explode('\\', $this->getObjectClass());
+        return array_pop($path);
     }
 
     /**
      * @inheritdoc
      */
-    public function getObjectClass(): ?string
+    public function getObjectClass(): string
     {
         return get_class($this);
     }
