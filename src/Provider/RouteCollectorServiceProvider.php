@@ -21,15 +21,15 @@ final class RouteCollectorServiceProvider extends ServiceProvider
         $collector = $container->get(RouteCollectorInterface::class);
 
         $collector->addGroup(
-            Group::create(
-                '/activity-log',
-                [
-                    Route::get('/default/index', [DefaultController::class, 'index'])
-                        ->name('/activity-log/default/index'),
-                    Route::get('/default/view/{id:\d+}', [DefaultController::class, 'view'])
-                        ->name('/activity-log/default/view'),
-                ]
-            )
+            Group::create('/activity-log')
+                ->routes(
+                    Route::get('/default/index')
+                        ->name('/activity-log/default/index')
+                        ->action([DefaultController::class, 'index']),
+                    Route::get('/default/view/{id:\d+}')
+                        ->name('/activity-log/default/view')
+                        ->action([DefaultController::class, 'view'])
+                )
         );
     }
 }
