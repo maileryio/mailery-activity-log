@@ -278,6 +278,38 @@ class Event implements RoutableEntityInterface
     /**
      * @inheritdoc
      */
+    public function getIndexRouteName(): ?string
+    {
+        return '/activity-log/default/index';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIndexRouteParams(): array
+    {
+        return [];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getViewRouteName(): ?string
+    {
+        return '/activity-log/default/view';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getViewRouteParams(): array
+    {
+        return ['id' => $this->getId()];
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getEditRouteName(): ?string
     {
         return '/activity-log/default/edit';
@@ -294,15 +326,15 @@ class Event implements RoutableEntityInterface
     /**
      * @inheritdoc
      */
-    public function getViewRouteName(): ?string
+    public function getDeleteRouteName(): ?string
     {
-        return '/activity-log/default/view';
+        return '/activity-log/default/delete';
     }
 
     /**
      * @inheritdoc
      */
-    public function getViewRouteParams(): array
+    public function getDeleteRouteParams(): array
     {
         return ['id' => $this->getId()];
     }
