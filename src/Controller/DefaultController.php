@@ -89,7 +89,7 @@ class DefaultController
     {
         $eventId = $request->getAttribute('id');
         if (empty($eventId) || ($event = $this->eventRepo->findByPK($eventId)) === null) {
-            return $this->responseFactory->createResponse(404);
+            return $this->responseFactory->createResponse(Status::NOT_FOUND);
         }
 
         return $this->viewRenderer->render('view', compact('event'));
