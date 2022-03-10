@@ -11,7 +11,6 @@ use Cycle\ORM\ORMInterface;
 use Cycle\ORM\Transaction;
 use Cycle\ORM\Command\Branch\ContextSequence;
 use Cycle\ORM\Command\Branch\Sequence;
-use Cycle\ORM\Command\ContextCarrierInterface;
 use Cycle\ORM\Command\Database\Update;
 use Cycle\ORM\Command\Database\Insert;
 use Cycle\ORM\Command\Database\Delete;
@@ -42,9 +41,9 @@ class ObjectLoggerService
     /**
      * @param DataChangeSet $dataChangeSet
      * @param Insert $insert
-     * @return ContextCarrierInterface
+     * @return CommandInterface
      */
-    public function queueCreate(DataChangeSet $dataChangeSet, Insert $insert): ContextCarrierInterface
+    public function queueCreate(DataChangeSet $dataChangeSet, Insert $insert): CommandInterface
     {
         if (($eventCommand = $this->getEventCommand($dataChangeSet, $insert)) === null) {
             return $insert;
@@ -81,9 +80,9 @@ class ObjectLoggerService
     /**
      * @param DataChangeSet $dataChangeSet
      * @param Update $update
-     * @return ContextCarrierInterface
+     * @return CommandInterface
      */
-    public function queueUpdate(DataChangeSet $dataChangeSet, Update $update): ContextCarrierInterface
+    public function queueUpdate(DataChangeSet $dataChangeSet, Update $update): CommandInterface
     {
         if (($eventCommand = $this->getEventCommand($dataChangeSet, $update)) === null) {
             return $update;
@@ -117,9 +116,9 @@ class ObjectLoggerService
     /**
      * @param DataChangeSet $dataChangeSet
      * @param CommandInterface $delete
-     * @return ContextCarrierInterface|null
+     * @return CommandInterface|null
      */
-    private function getEventCommand(DataChangeSet $dataChangeSet, CommandInterface $delete): ?ContextCarrierInterface
+    private function getEventCommand(DataChangeSet $dataChangeSet, CommandInterface $delete): ?CommandInterface
     {
         $entity = $dataChangeSet->getEntity();
 
@@ -136,7 +135,7 @@ class ObjectLoggerService
 
         $event = new Event();
         $event->setAction($dataChangeSet->getAction());
-        $event->setDate(new \DateTime('now'));
+        $event->setDate(new \DateTimeImmutable('now'));
         $event->setModule($dataChangeSet->getModule());
 
         if (!$delete instanceof Delete) {

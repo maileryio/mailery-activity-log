@@ -12,84 +12,72 @@ declare(strict_types=1);
 
 namespace Mailery\Activity\Log\Entity;
 
-use Cycle\ORM\Relation\Pivoted\PivotedCollection;
-use Doctrine\Common\Collections\Collection;
+use Cycle\Annotated\Annotation\Entity;
+use Cycle\Annotated\Annotation\Column;
+use Cycle\Annotated\Annotation\Relation\BelongsTo;
+use Cycle\Annotated\Annotation\Relation\HasMany;
 use Mailery\Brand\Entity\Brand;
 use Mailery\User\Entity\User;
 use Mailery\Common\Entity\RoutableEntityInterface;
+use Mailery\Activity\Log\Repository\EventRepository;
+use Cycle\ORM\Entity\Behavior;
+use Mailery\Activity\Log\Entity\EventDataChange;
+use Cycle\ORM\Collection\DoctrineCollectionFactory;
+use Doctrine\Common\Collections\ArrayCollection;
 
-/**
- * @Cycle\Annotated\Annotation\Entity(
- *      table = "activity_events",
- *      repository = "Mailery\Activity\Log\Repository\EventRepository",
- *      mapper = "Yiisoft\Yii\Cycle\Mapper\TimestampedMapper"
- * )
- */
+#[Entity(
+    table: 'activity_events',
+    repository: EventRepository::class
+)]
+#[Behavior\CreatedAt(
+    field: 'createdAt',
+    column: 'created_at'
+)]
+#[Behavior\UpdatedAt(
+    field: 'updatedAt',
+    column: 'updated_at'
+)]
 class Event implements RoutableEntityInterface
 {
-    /**
-     * @Cycle\Annotated\Annotation\Column(type="primary")
-     * @var int|null
-     */
-    private $id;
+    #[Column(type: 'primary')]
+    private int $id;
 
-    /**
-     * @Cycle\Annotated\Annotation\Column(type="datetime")
-     * @var \DateTime
-     */
-    private $date;
+    #[Column(type: 'datetime')]
+    private \DateTimeImmutable $date;
 
-    /**
-     * @Cycle\Annotated\Annotation\Column(type="string(255)")
-     * @var string
-     */
-    private $action;
+    #[Column(type: 'string(255)')]
+    private string $action;
 
-    /**
-     * @Cycle\Annotated\Annotation\Column(type="string(255)")
-     * @var string
-     */
-    private $module;
+    #[Column(type: 'string(255)')]
+    private string $module;
 
-    /**
-     * @Cycle\Annotated\Annotation\Relation\BelongsTo(target = "Mailery\Brand\Entity\Brand", nullable = true, fkAction = "SET NULL")
-     * @var Brand|null
-     */
-    private $brand;
+    #[BelongsTo(target: Brand::class, nullable: true, fkAction: 'SET NULL')]
+    private ?Brand $brand = null;
 
-    /**
-     * @Cycle\Annotated\Annotation\Relation\BelongsTo(target = "Mailery\User\Entity\User", nullable = true, fkAction = "SET NULL")
-     * @var User|null
-     */
-    private $user;
+    #[BelongsTo(target: User::class, nullable: true, fkAction: 'SET NULL')]
+    private ?User $user = null;
 
-    /**
-     * @Cycle\Annotated\Annotation\Column(type="integer", nullable=true)
-     * @var int
-     */
-    private $objectId;
+    #[Column(type: 'integer', nullable: true)]
+    private ?int $objectId = null;
 
-    /**
-     * @Cycle\Annotated\Annotation\Column(type="string(255)", nullable=true)
-     * @var string
-     */
-    private $objectLabel;
+    #[Column(type: 'string(255)', nullable: true)]
+    private ?string $objectLabel = null;
 
-    /**
-     * @Cycle\Annotated\Annotation\Column(type="string(255)", nullable=true)
-     * @var string
-     */
-    private $objectClass;
+    #[Column(type: 'string(255)', nullable: true)]
+    private ?string $objectClass = null;
 
-    /**
-     * @Cycle\Annotated\Annotation\Relation\HasMany(target="Mailery\Activity\Log\Entity\EventDataChange")
-     * @var Collection
-     */
-    private $objectDataChanges;
+    #[HasMany(target: EventDataChange::class, collection: DoctrineCollectionFactory::class)]
+    private ArrayCollection $objectDataChanges;
+
+    #[Column(type: 'datetime')]
+    private \DateTimeImmutable $createdAt;
+
+    #[Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeImmutable $updatedAt = null;
 
     public function __construct()
     {
-        $this->objectDataChanges = new PivotedCollection();
+        $this->objectDataChanges = new ArrayCollection();
     }
 
     /**
@@ -120,9 +108,9 @@ class Event implements RoutableEntityInterface
     }
 
     /**
-     * @param \DateTime $dateTime
+     * @param \DateTimeImmutable $dateTime
      */
-    public function setDate(\DateTime $dateTime)
+    public function setDate(\DateTimeImmutable $dateTime)
     {
         $this->date = $dateTime;
 
@@ -258,17 +246,17 @@ class Event implements RoutableEntityInterface
     }
 
     /**
-     * @return string
+     * @return ArrayCollection
      */
-    public function getObjectDataChanges(): Collection
+    public function getObjectDataChanges(): ArrayCollection
     {
         return $this->objectDataChanges;
     }
 
     /**
-     * @param Collection $objectDataChanges
+     * @param ArrayCollection $objectDataChanges
      */
-    public function setObjectDataChanges(Collection $objectDataChanges): Collection
+    public function setObjectDataChanges(ArrayCollection $objectDataChanges): ArrayCollection
     {
         $this->objectDataChanges = $objectDataChanges;
 

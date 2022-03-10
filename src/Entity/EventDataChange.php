@@ -12,44 +12,47 @@ declare(strict_types=1);
 
 namespace Mailery\Activity\Log\Entity;
 
-/**
- * @Cycle\Annotated\Annotation\Entity(
- *      table = "activity_event_data_changes",
- *      repository = "Mailery\Activity\Log\Repository\EventDataChangeRepository",
- *      mapper = "Yiisoft\Yii\Cycle\Mapper\TimestampedMapper"
- * )
- */
+use Cycle\Annotated\Annotation\Entity;
+use Cycle\Annotated\Annotation\Column;
+use Mailery\Activity\Log\Repository\EventDataChangeRepository;
+use Cycle\ORM\Entity\Behavior;
+use Cycle\Annotated\Annotation\Relation\BelongsTo;
+use Mailery\Activity\Log\Entity\EventDataChange;
+
+#[Entity(
+    table: 'activity_event_data_changes',
+    repository: EventDataChangeRepository::class
+)]
+#[Behavior\CreatedAt(
+    field: 'createdAt',
+    column: 'created_at'
+)]
+#[Behavior\UpdatedAt(
+    field: 'updatedAt',
+    column: 'updated_at'
+)]
 class EventDataChange
 {
-    /**
-     * @Cycle\Annotated\Annotation\Column(type="primary")
-     * @var int|null
-     */
-    private $id;
+    #[Column(type: 'primary')]
+    private int $id;
 
-    /**
-     * @Cycle\Annotated\Annotation\Relation\BelongsTo(target = "Mailery\Activity\Log\Entity\Event")
-     * @var Event
-     */
-    private $event;
+    #[BelongsTo(target: Event::class)]
+    private Event $event;
 
-    /**
-     * @Cycle\Annotated\Annotation\Column(type="string")
-     * @var string
-     */
-    private $field;
+    #[Column(type: 'string(255)')]
+    private string $field;
 
-    /**
-     * @Cycle\Annotated\Annotation\Column(type="text", nullable=true)
-     * @var string
-     */
-    private $valueOld;
+    #[Column(type: 'text', nullable: true)]
+    private ?string $valueOld = null;
 
-    /**
-     * @Cycle\Annotated\Annotation\Column(type="text", nullable=true)
-     * @var string
-     */
-    private $valueNew;
+    #[Column(type: 'text', nullable: true)]
+    private ?string $valueNew;
+
+    #[Column(type: 'datetime')]
+    private \DateTimeImmutable $createdAt;
+
+    #[Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeImmutable $updatedAt = null;
 
     /**
      * @return string|null

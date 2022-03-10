@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Mailery\Activity\Log\Service;
 
-use Cycle\ORM\Command\ContextCarrierInterface;
+use Cycle\ORM\Command\CommandInterface;
 use Cycle\ORM\Command\DatabaseCommand;
 use Cycle\ORM\Command\Database\Insert;
 use Cycle\ORM\Command\ScopeCarrierInterface;
@@ -15,7 +15,7 @@ use Mailery\Activity\Log\Entity\LoggableEntityInterface;
 use Cycle\ORM\ORMInterface;
 use Mailery\Activity\Log\Entity\Event;
 
-final class UpdateEventCommand extends DatabaseCommand implements ContextCarrierInterface, ScopeCarrierInterface
+final class UpdateEventCommand extends DatabaseCommand implements CommandInterface, ScopeCarrierInterface
 {
     use ContextTrait;
     use ScopeTrait;

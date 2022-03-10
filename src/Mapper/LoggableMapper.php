@@ -4,13 +4,13 @@ namespace Mailery\Activity\Log\Mapper;
 
 use Cycle\ORM\Heap\Node;
 use Cycle\ORM\Heap\State;
-use Cycle\ORM\Command\ContextCarrierInterface;
 use Cycle\ORM\Command\CommandInterface;
 use Mailery\Activity\Log\Service\ObjectLoggerService;
 use Mailery\Activity\Log\Model\DataChangeSet;
 use Cycle\ORM\ORMInterface;
 use Mailery\Common\Mapper\BaseMapper;
 use Psr\Container\ContainerInterface;
+use Cycle\ORM\Mapper\Proxy\ProxyEntityFactory;
 
 class LoggableMapper extends BaseMapper
 {
@@ -29,10 +29,10 @@ class LoggableMapper extends BaseMapper
      * @param ORMInterface $orm
      * @param string $role
      */
-    public function __construct(ContainerInterface $container, ORMInterface $orm, string $role)
+    public function __construct(ContainerInterface $container, ORMInterface $orm, ProxyEntityFactory $entityFactory, string $role)
     {
         $this->container = $container;
-        parent::__construct($orm, $role);
+        parent::__construct($orm, $entityFactory, $role);
     }
 
     /**
@@ -49,7 +49,7 @@ class LoggableMapper extends BaseMapper
     /**
      * @inheritdoc
      */
-    public function queueCreate($entity, Node $node, State $state): ContextCarrierInterface
+    public function queueCreate($entity, Node $node, State $state): CommandInterface
     {
         $dataChangeSet = (new DataChangeSet($entity))
             ->withAction('Object created')
@@ -81,7 +81,7 @@ class LoggableMapper extends BaseMapper
     /**
      * @inheritdoc
      */
-    public function queueUpdate($entity, Node $node, State $state): ContextCarrierInterface
+    public function queueUpdate($entity, Node $node, State $state): CommandInterface
     {
         $dataChangeSet = (new DataChangeSet($entity))
             ->withAction('Object updated')

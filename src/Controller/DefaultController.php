@@ -17,7 +17,9 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Mailery\Activity\Log\Service\EventService;
 use Yiisoft\Yii\View\ViewRenderer;
+use Yiisoft\Http\Status;
 use Psr\Http\Message\ResponseFactoryInterface as ResponseFactory;
+use Yiisoft\Router\CurrentRoute;
 
 class DefaultController
 {
@@ -82,12 +84,12 @@ class DefaultController
     }
 
     /**
-     * @param Request $request
+     * @param CurrentRoute $currentRoute
      * @return Response
      */
-    public function view(Request $request): Response
+    public function view(CurrentRoute $currentRoute): Response
     {
-        $eventId = $request->getAttribute('id');
+        $eventId = (int) $currentRoute->getArgument('id');
         if (empty($eventId) || ($event = $this->eventRepo->findByPK($eventId)) === null) {
             return $this->responseFactory->createResponse(Status::NOT_FOUND);
         }

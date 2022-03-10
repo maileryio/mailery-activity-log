@@ -77,17 +77,14 @@ $this->setTitle('Activity log');
                                 $entity->setId($data->getObjectId());
                             }
 
-                            $routeParams = [];
-                            if ($data->getBrand() !== null) {
-                                $routeParams = ['brandId' => $data->getBrand()->getId()];
-                            }
-
                             try {
                                 return EntityViewLink::widget()
                                     ->entity($entity)
                                     ->reload(true)
                                     ->label($data->getObjectLabel())
-                                    ->routeParams($routeParams)
+                                    ->routeParams(array_filter([
+                                        'brandId' => $data->getBrand()?->getId(),
+                                    ]))
                                     ->render();
                             } catch (BrandRequiredException $e) {}
                         }

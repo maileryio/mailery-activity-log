@@ -71,17 +71,14 @@ $this->setTitle('Activity log #' . $event->getId());
                     'label' => 'Object',
                     'value' => function (Event $data, $index) {
                         if (($entity = $data->getEntity()) !== null) {
-                            $routeParams = [];
-                            if ($data->getBrand() !== null) {
-                                $routeParams = ['brandId' => $data->getBrand()->getId()];
-                            }
-
                             try {
                                 return EntityViewLink::widget()
                                     ->entity($entity)
                                     ->reload(true)
                                     ->label($data->getObjectLabel())
-                                    ->routeParams($routeParams)
+                                    ->routeParams(array_filter([
+                                        'brandId' => $data->getBrand()?->getId(),
+                                    ]))
                                     ->render();
                             } catch (BrandRequiredException $e) {}
                         }
