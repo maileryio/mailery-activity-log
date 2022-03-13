@@ -22,7 +22,7 @@ class ActivityLogLink extends Widget
     /**
      * @var string|null
      */
-    private ?string $module = null;
+    private ?string $group = null;
 
     /**
      * @var object|null
@@ -85,12 +85,12 @@ class ActivityLogLink extends Widget
     }
 
     /**
-     * @param string $module
+     * @param string $group
      * @return self
      */
-    public function module(string $module): self
+    public function group(string $group): self
     {
-        $this->module = $module;
+        $this->group = $group;
 
         return $this;
     }
@@ -176,9 +176,9 @@ class ActivityLogLink extends Widget
                 'objectId' => $entity->getObjectId(),
                 'objectClass' => $entity->getObjectClass(),
             ];
-        } else if ($this->module !== null) {
+        } else if ($this->group !== null) {
             $routeParams = [
-                'module' => $this->module,
+                'group' => $this->group,
             ];
         } else {
             $routeParams = [];

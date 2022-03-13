@@ -12,6 +12,8 @@ use Mailery\Brand\Exception\BrandRequiredException;
 /** @var Yiisoft\Router\UrlGeneratorInterface $urlGenerator */
 /** @var Yiisoft\Data\Reader\DataReaderInterface $dataReader*/
 /** @var Yiisoft\Data\Paginator\PaginatorInterface $paginator */
+/** @var Mailery\Activity\Log\Provider\EntityGroupsProvider $entityGroups */
+
 $this->setTitle('Activity log');
 
 ?><div class="row">
@@ -58,9 +60,9 @@ $this->setTitle('Activity log');
                             ->label($user->getUsername());
                     }),
                 (new DataColumn())
-                    ->header('Module')
-                    ->content(function (Event $data, int $index) {
-                        return $data->getModule();
+                    ->header('Group')
+                    ->content(function (Event $data, int $index) use($entityGroups) {
+                        return $entityGroups->getGroupByKey($data->getGroup())->getLabel();
                     }),
                 (new DataColumn())
                     ->header('Action')

@@ -11,6 +11,7 @@ declare(strict_types=1);
  */
 
 use Yiisoft\Router\UrlGeneratorInterface;
+use Yiisoft\Definitions\DynamicReference;
 
 return [
     'maileryio/mailery-menu-navbar' => [
@@ -22,11 +23,20 @@ return [
                             return 'Activity log';
                         },
                         'url' => static function (UrlGeneratorInterface $urlGenerator) {
-                            return $urlGenerator->generate('/activity-log/default/index');
+                            return strtok($urlGenerator->generate('/activity-log/default/index'), '?');
                         },
                     ],
                 ],
             ]
+        ],
+    ],
+
+    'maileryio/mailery-activity-log' => [
+        'entity-groups' => [
+            'default' => [
+                'label' => DynamicReference::to(static fn () => 'Default'),
+                'entities' => [],
+            ],
         ],
     ],
 

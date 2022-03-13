@@ -49,7 +49,7 @@ class Event implements RoutableEntityInterface
     private string $action;
 
     #[Column(type: 'string(255)')]
-    private string $module;
+    private string $group;
 
     #[BelongsTo(target: Brand::class, nullable: true, fkAction: 'SET NULL')]
     private ?Brand $brand = null;
@@ -81,11 +81,11 @@ class Event implements RoutableEntityInterface
     }
 
     /**
-     * @return string|null
+     * @return int
      */
-    public function getId(): ?string
+    public function getId(): int
     {
-        return $this->id ? (string) $this->id : null;
+        return $this->id;
     }
 
     /**
@@ -138,17 +138,17 @@ class Event implements RoutableEntityInterface
     /**
      * @return string
      */
-    public function getModule(): string
+    public function getGroup(): string
     {
-        return $this->module;
+        return $this->group;
     }
 
     /**
-     * @param string $module
+     * @param string $group
      */
-    public function setModule(string $module)
+    public function setGroup(string $group)
     {
-        $this->module = $module;
+        $this->group = $group;
 
         return $this;
     }
@@ -192,7 +192,7 @@ class Event implements RoutableEntityInterface
     }
 
     /**
-     * @return int|null
+     * @return int
      */
     public function getObjectId(): ?int
     {

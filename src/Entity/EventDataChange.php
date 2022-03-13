@@ -17,7 +17,6 @@ use Cycle\Annotated\Annotation\Column;
 use Mailery\Activity\Log\Repository\EventDataChangeRepository;
 use Cycle\ORM\Entity\Behavior;
 use Cycle\Annotated\Annotation\Relation\BelongsTo;
-use Mailery\Activity\Log\Entity\EventDataChange;
 
 #[Entity(
     table: 'activity_event_data_changes',
@@ -55,11 +54,11 @@ class EventDataChange
     private ?\DateTimeImmutable $updatedAt = null;
 
     /**
-     * @return string|null
+     * @return int
      */
-    public function getId(): ?string
+    public function getId(): int
     {
-        return $this->id ? (string) $this->id : null;
+        return $this->id;
     }
 
     /**

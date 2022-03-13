@@ -2,6 +2,9 @@
 
 namespace Mailery\Activity\Log\Model;
 
+use Cycle\ORM\Heap\Node;
+use Cycle\ORM\Heap\State;
+
 class DataChangeSet
 {
     /**
@@ -12,12 +15,7 @@ class DataChangeSet
     /**
      * @var string
      */
-    private string $module;
-
-    /**
-     * @var object
-     */
-    private object $entity;
+    private string $group;
 
     /**
      * @var array
@@ -30,12 +28,15 @@ class DataChangeSet
     private array $newValues = [];
 
     /**
-     * @param objest $entity
+     * @param object $entity
+     * @param Node $node
+     * @param State $state
      */
-    public function __construct(object $entity)
-    {
-        $this->entity = $entity;
-    }
+    public function __construct(
+        private object $entity,
+        private Node $node,
+        private State $state
+    ) {}
 
     /**
      * @return string
@@ -48,9 +49,9 @@ class DataChangeSet
     /**
      * @return string
      */
-    public function getModule(): string
+    public function getGroup(): string
     {
-        return $this->module;
+        return $this->group;
     }
 
     /**
@@ -59,6 +60,22 @@ class DataChangeSet
     public function getEntity(): object
     {
         return $this->entity;
+    }
+
+    /**
+     * @return Node
+     */
+    public function getNode(): Node
+    {
+        return $this->node;
+    }
+
+    /**
+     * @return State
+     */
+    public function getState(): State
+    {
+        return $this->state;
     }
 
     /**
@@ -90,13 +107,13 @@ class DataChangeSet
     }
 
     /**
-     * @param string $module
+     * @param string $group
      * @return self
      */
-    public function withModule(string $module): self
+    public function withGroup(string $group): self
     {
         $new = clone $this;
-        $new->module = $module;
+        $new->group = $group;
 
         return $new;
     }
@@ -161,7 +178,17 @@ class DataChangeSet
         $normalizer = function ($value): string {
             switch (gettype($value)) {
                 case 'object':
-                    return method_exists($value, '__toString') ? (string) $value : get_class($value);
+                    if (method_exists($value, '__toString')) {
+                        return (string) $value;
+                    }
+
+                    switch (get_class($value)) {
+                        case \DateTime::class:
+                        case \DateTimeImmutable::class:
+                            return $value->format('Y-m-d H:i:s');
+                        default:
+                            return get_class($value);
+                    }
                 case 'boolean':
                     return $value ? 'true' : 'false';
                 default:

@@ -8,6 +8,8 @@ use Mailery\Brand\Exception\BrandRequiredException;
 /** @var Yiisoft\Yii\WebView $this */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
 /** @var Mailery\Activity\Log\Entity\Event $event */
+/** @var Mailery\Activity\Log\Provider\EntityGroupsProvider $entityGroups */
+
 $this->setTitle('Activity log #' . $event->getId());
 
 ?><div class="row">
@@ -56,9 +58,9 @@ $this->setTitle('Activity log #' . $event->getId());
                     },
                 ],
                 [
-                    'label' => 'Module',
-                    'value' => function (Event $data, $index) {
-                        return $data->getModule();
+                    'label' => 'Group',
+                    'value' => function (Event $data, $index) use($entityGroups) {
+                        return $entityGroups->getGroupByKey($data->getGroup())->getLabel();
                     },
                 ],
                 [

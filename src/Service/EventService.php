@@ -14,17 +14,11 @@ use Yiisoft\Data\Reader\Filter\FilterInterface;
 class EventService
 {
     /**
-     * @var EventRepository
-     */
-    private EventRepository $eventRepo;
-
-    /**
      * @param EventRepository $eventRepo
      */
-    public function __construct(EventRepository $eventRepo)
-    {
-        $this->eventRepo = $eventRepo;
-    }
+    public function __construct(
+        private EventRepository $eventRepo
+    ) {}
 
     /**
      * @return SearchForm

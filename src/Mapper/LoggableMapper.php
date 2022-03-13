@@ -5,33 +5,39 @@ namespace Mailery\Activity\Log\Mapper;
 use Cycle\ORM\Heap\Node;
 use Cycle\ORM\Heap\State;
 use Cycle\ORM\Command\CommandInterface;
-use Mailery\Activity\Log\Service\ObjectLoggerService;
 use Mailery\Activity\Log\Model\DataChangeSet;
 use Cycle\ORM\ORMInterface;
-use Mailery\Common\Mapper\BaseMapper;
-use Psr\Container\ContainerInterface;
+use Cycle\ORM\Mapper\Mapper;
 use Cycle\ORM\Mapper\Proxy\ProxyEntityFactory;
+use Mailery\User\Service\CurrentUserService;
+use Cycle\ORM\Command\Special\Sequence;
+use Mailery\Activity\Log\Entity\Event;
+use Mailery\Activity\Log\Entity\EventDataChange;
+use Mailery\Activity\Log\Entity\LoggableEntityInterface;
+use Cycle\ORM\Command\Special\WrappedStoreCommand;
+use Mailery\Activity\Log\Provider\EntityGroupsProvider;
 
-class LoggableMapper extends BaseMapper
+class LoggableMapper extends Mapper
 {
-    /**
-     * @var ContainerInterface
-     */
-    private ContainerInterface $container;
-
     /**
      * @var array
      */
     private array $pendingLogEntry = [];
 
     /**
-     * @param ContainerInterface $container
+     * @param CurrentUserService $currentUser
+     * @param EntityGroupsProvider $entityGroups
      * @param ORMInterface $orm
+     * @param ProxyEntityFactory $entityFactory
      * @param string $role
      */
-    public function __construct(ContainerInterface $container, ORMInterface $orm, ProxyEntityFactory $entityFactory, string $role)
-    {
-        $this->container = $container;
+    public function __construct(
+        private CurrentUserService $currentUser,
+        private EntityGroupsProvider $entityGroups,
+        private ORMInterface $orm,
+        ProxyEntityFactory $entityFactory,
+        string $role
+    ) {
         parent::__construct($orm, $entityFactory, $role);
     }
 
@@ -51,15 +57,21 @@ class LoggableMapper extends BaseMapper
      */
     public function queueCreate($entity, Node $node, State $state): CommandInterface
     {
-        $dataChangeSet = (new DataChangeSet($entity))
+        $command = parent::queueCreate($entity, $node, $state);
+
+        $dataChangeSet = (new DataChangeSet($entity, $node, $state))
             ->withAction('Object created')
-            ->withModule($this->getModule())
+            ->withGroup($this->entityGroups->getGroup($entity)->getKey())
             ->withNewValues($this->extract($entity));
 
-        return $this->getObjectLoggerService()->queueCreate(
-            $dataChangeSet,
-            parent::queueCreate($entity, $node, $state)
-        );
+        if (($eventCommand = $this->getEventCommand($dataChangeSet, $command)) === null) {
+            return $command;
+        }
+
+        $sequence = new Sequence($command);
+        $sequence->addCommand($eventCommand);
+
+        return $sequence;
     }
 
     /**
@@ -67,15 +79,21 @@ class LoggableMapper extends BaseMapper
      */
     public function queueDelete($entity, Node $node, State $state): CommandInterface
     {
-        $dataChangeSet = (new DataChangeSet($entity))
+        $command = parent::queueDelete($entity, $node, $state);
+
+        $dataChangeSet = (new DataChangeSet($entity, $node, $state))
             ->withAction('Object deleted')
-            ->withModule($this->getModule())
+            ->withGroup($this->entityGroups->getGroup($entity)->getKey())
             ->withOldValues($this->getPendingLogEntry($entity));
 
-        return $this->getObjectLoggerService()->queueDelete(
-            $dataChangeSet,
-            parent::queueDelete($entity, $node, $state)
-        );
+        if (($eventCommand = $this->getEventCommand($dataChangeSet, $command)) === null) {
+            return $command;
+        }
+
+        $sequence = new Sequence($command);
+        $sequence->addCommand($eventCommand);
+
+        return $sequence;
     }
 
     /**
@@ -83,24 +101,22 @@ class LoggableMapper extends BaseMapper
      */
     public function queueUpdate($entity, Node $node, State $state): CommandInterface
     {
-        $dataChangeSet = (new DataChangeSet($entity))
+        $command = parent::queueUpdate($entity, $node, $state);
+
+        $dataChangeSet = (new DataChangeSet($entity, $node, $state))
             ->withAction('Object updated')
-            ->withModule($this->getModule())
+            ->withGroup($this->entityGroups->getGroup($entity)->getKey())
             ->withOldValues($this->getPendingLogEntry($entity))
             ->withNewValues($this->extract($entity));
 
-        return $this->getObjectLoggerService()->queueUpdate(
-            $dataChangeSet,
-            parent::queueUpdate($entity, $node, $state)
-        );
-    }
+        if (($eventCommand = $this->getEventCommand($dataChangeSet, $command)) === null) {
+            return $command;
+        }
 
-    /**
-     * @return string
-     */
-    protected function getModule(): string
-    {
-        return 'Default';
+        $sequence = new Sequence($command);
+        $sequence->addCommand($eventCommand);
+
+        return $sequence;
     }
 
     /**
@@ -123,10 +139,76 @@ class LoggableMapper extends BaseMapper
     }
 
     /**
-     * @return ObjectLoggerService
+     * @param DataChangeSet $dataChangeSet
+     * @param CommandInterface $command
+     * @return CommandInterface|null
      */
-    private function getObjectLoggerService(): ObjectLoggerService
+    private function getEventCommand(DataChangeSet $dataChangeSet, CommandInterface $command): ?CommandInterface
     {
-        return $this->container->get(ObjectLoggerService::class);
+        if (!$dataChangeSet->getEntity() instanceof LoggableEntityInterface) {
+            return null;
+        }
+
+        $entity = $dataChangeSet->getEntity();
+        $origin = $dataChangeSet->getState();
+        $oldValues = $dataChangeSet->getOldValues();
+        $changes = $dataChangeSet->getChanges();
+
+        $user = $this->currentUser->getUser();
+        $brand = method_exists($entity, 'getBrand') ? $entity->getBrand() : null;
+
+        $state = new State(
+            Node::SCHEDULED_INSERT,
+            array_filter([
+                'action' => $dataChangeSet->getAction(),
+                'date' => new \DateTimeImmutable(),
+                'group' => $dataChangeSet->getGroup(),
+                'object_id' => $entity->getObjectId(),
+                'object_label' => $entity->getObjectLabel(),
+                'object_class' => $entity->getObjectClass(),
+                'user_id' => $user !== $entity ? $user?->getId() : null,
+                'brand_id' => $brand?->getId(),
+            ])
+        );
+
+        $sequence = new Sequence(
+            WrappedStoreCommand::createInsert(
+                $command->getDatabase(),
+                $this->orm->getSource(Event::class)->getTable(),
+                $state,
+                null,
+                ['id']
+            )->withBeforeExecution(static function () use ($origin, $state): void {
+                $state->register('object_id', $origin->getData()['id']);
+            })
+        );
+
+        foreach ($changes as $field => $value) {
+            if (empty($oldValues[$field]) && empty($value)) {
+                continue;
+            }
+
+            $changeState = new State(
+                Node::SCHEDULED_INSERT,
+                array_filter([
+                    'field' => $field,
+                    'value_old' => $oldValues[$field] ?? null,
+                    'value_new' => $value,
+                ])
+            );
+
+            $sequence->addCommand(
+                WrappedStoreCommand::createInsert(
+                    $command->getDatabase(),
+                    $this->orm->getSource(EventDataChange::class)->getTable(),
+                    $changeState,
+                    null
+                )->withBeforeExecution(static function () use ($changeState, $state): void {
+                    $changeState->register('event_id', $state->getData()['id']);
+                })
+            );
+        }
+
+        return $sequence;
     }
 }

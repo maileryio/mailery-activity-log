@@ -44,7 +44,7 @@ trait LoggableEntityTrait
      */
     public function getObjectClass(): string
     {
-        return get_class($this);
+        return self::class;
     }
 
     /**
