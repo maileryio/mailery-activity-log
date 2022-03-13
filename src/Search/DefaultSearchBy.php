@@ -16,13 +16,19 @@ use Mailery\Widget\Search\Model\SearchBy;
 
 class DefaultSearchBy extends SearchBy
 {
+    /**
+     * @inheritdoc
+     */
     public function toArray(): array
     {
-
+        return '';
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getOperator(): string
     {
-
+        return 'and';
     }
 }

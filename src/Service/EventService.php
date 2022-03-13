@@ -31,7 +31,6 @@ class EventService
             ]));
     }
 
-
     /**
      * @param FilterInterface|null $filter
      * @param array $scope
