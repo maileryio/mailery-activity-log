@@ -20,9 +20,12 @@ trait LoggableEntityTrait
      */
     public function getObjectId(): ?string
     {
-        if (method_exists($this, 'getId') && $this->getId()) {
-            return $this->getId();
-        }
+        try {
+            if (method_exists($this, 'getId') && $this->getId()) {
+                return $this->getId();
+            }
+        } catch (\Error $e) {}
+
         return null;
     }
 
