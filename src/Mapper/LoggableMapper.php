@@ -204,7 +204,7 @@ class LoggableMapper extends Mapper
                     $changeState,
                     null
                 )->withBeforeExecution(static function () use ($changeState, $state): void {
-                    $changeState->register('event_id', $state->getData()['id']);
+                    $changeState->register('activity_event_id', $state->getData()['id']);
                 })
             );
         }

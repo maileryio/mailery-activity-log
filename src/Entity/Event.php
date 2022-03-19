@@ -66,7 +66,7 @@ class Event implements RoutableEntityInterface
     #[Column(type: 'string(255)', nullable: true)]
     private ?string $objectClass = null;
 
-    #[HasMany(target: EventDataChange::class, collection: DoctrineCollectionFactory::class)]
+    #[HasMany(target: EventDataChange::class, outerKey: 'activity_event_id', collection: DoctrineCollectionFactory::class)]
     private ArrayCollection $objectDataChanges;
 
     #[Column(type: 'datetime')]

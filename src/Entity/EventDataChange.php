@@ -35,7 +35,7 @@ class EventDataChange
     #[Column(type: 'primary')]
     private int $id;
 
-    #[BelongsTo(target: Event::class)]
+    #[BelongsTo(target: Event::class, innerKey: 'activity_event_id')]
     private Event $event;
 
     #[Column(type: 'string(255)')]
