@@ -18,7 +18,7 @@ $this->setTitle('Activity log #' . $event->getId());
             <h1 class="h3">Activity log #<?= $event->getId(); ?></h1>
             <div class="btn-toolbar float-right">
                 <div class="btn-toolbar float-right">
-                    <a class="btn btn-sm btn-outline-secondary mx-sm-1 mb-2" href="<?= $urlGenerator->generate('/activity-log/default/index'); ?>">
+                    <a class="btn btn-sm btn-outline-secondary mx-sm-1 mb-2" href="<?= $url->generate('/activity-log/default/index'); ?>">
                         Back
                     </a>
                 </div>
