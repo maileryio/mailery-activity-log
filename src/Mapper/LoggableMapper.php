@@ -64,7 +64,7 @@ class LoggableMapper extends Mapper
             ->withGroup($this->entityGroups->getGroup($entity)->getKey())
             ->withNewValues($this->extract($entity));
 
-        if (($eventCommand = $this->getEventCommand($dataChangeSet, $command)) === null) {
+        if (($eventCommand = $this->getEventCommand($dataChangeSet)) === null) {
             return $command;
         }
 
@@ -86,7 +86,7 @@ class LoggableMapper extends Mapper
             ->withGroup($this->entityGroups->getGroup($entity)->getKey())
             ->withOldValues($this->getPendingLogEntry($entity));
 
-        if (($eventCommand = $this->getEventCommand($dataChangeSet, $command)) === null) {
+        if (($eventCommand = $this->getEventCommand($dataChangeSet)) === null) {
             return $command;
         }
 
@@ -109,7 +109,7 @@ class LoggableMapper extends Mapper
             ->withOldValues($this->getPendingLogEntry($entity))
             ->withNewValues($this->extract($entity));
 
-        if (($eventCommand = $this->getEventCommand($dataChangeSet, $command)) === null) {
+        if (($eventCommand = $this->getEventCommand($dataChangeSet)) === null) {
             return $command;
         }
 
@@ -140,10 +140,9 @@ class LoggableMapper extends Mapper
 
     /**
      * @param DataChangeSet $dataChangeSet
-     * @param CommandInterface $command
      * @return CommandInterface|null
      */
-    private function getEventCommand(DataChangeSet $dataChangeSet, CommandInterface $command): ?CommandInterface
+    private function getEventCommand(DataChangeSet $dataChangeSet): ?CommandInterface
     {
         if (!$dataChangeSet->getEntity() instanceof LoggableEntityInterface) {
             return null;
@@ -171,10 +170,12 @@ class LoggableMapper extends Mapper
             ])
         );
 
+        $source = $this->orm->getSource(Event::class);
+
         $sequence = new Sequence(
             WrappedStoreCommand::createInsert(
-                $command->getDatabase(),
-                $this->orm->getSource(Event::class)->getTable(),
+                $source->getDatabase(),
+                $source->getTable(),
                 $state,
                 null,
                 ['id']
@@ -197,10 +198,12 @@ class LoggableMapper extends Mapper
                 ])
             );
 
+            $source = $this->orm->getSource(EventDataChange::class);
+
             $sequence->addCommand(
                 WrappedStoreCommand::createInsert(
-                    $command->getDatabase(),
-                    $this->orm->getSource(EventDataChange::class)->getTable(),
+                    $source->getDatabase(),
+                    $source->getTable(),
                     $changeState,
                     null
                 )->withBeforeExecution(static function () use ($changeState, $state): void {
