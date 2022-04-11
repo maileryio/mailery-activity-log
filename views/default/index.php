@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 use Mailery\Activity\Log\Entity\Event;
+use Mailery\Web\Widget\DateTimeFormat;
 use Mailery\Web\Widget\EntityViewLink;
 use Mailery\Brand\Exception\BrandRequiredException;
 use Yiisoft\Yii\DataView\GridView;
@@ -44,7 +45,12 @@ $this->setTitle('Activity log');
                     'label()' => ['Date'],
                     'value()' => [fn (Event $model) => EntityViewLink::widget()
                         ->entity($model)
-                        ->label($model->getDate()->format('Y-m-d H:i:s'))],
+                        ->label(
+                            DateTimeFormat::widget()
+                                ->dateTime($model->getDate())
+                                ->run()
+                        )
+                    ],
                 ],
                 [
                     'label()' => ['User'],

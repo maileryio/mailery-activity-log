@@ -2,6 +2,7 @@
 
 use Mailery\Activity\Log\Entity\Event;
 use Mailery\Widget\Dataview\DetailView;
+use Mailery\Web\Widget\DateTimeFormat;
 use Mailery\Web\Widget\EntityViewLink;
 use Mailery\Brand\Exception\BrandRequiredException;
 
@@ -42,7 +43,7 @@ $this->setTitle('Activity log #' . $event->getId());
                 [
                     'label' => 'Date',
                     'value' => function (Event $data, $index) {
-                        return $data->getDate()->format('Y-m-d H:i:s');
+                        return DateTimeFormat::widget()->dateTime($data->getDate());
                     },
                 ],
                 [
