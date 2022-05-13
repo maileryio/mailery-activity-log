@@ -1,10 +1,11 @@
 <?php declare(strict_types=1);
 
 use Mailery\Activity\Log\Entity\Event;
-use Mailery\Widget\Dataview\DetailView;
 use Mailery\Web\Widget\DateTimeFormat;
 use Mailery\Web\Widget\EntityViewLink;
 use Mailery\Brand\Exception\BrandRequiredException;
+use Yiisoft\Yii\DataView\DetailView;
+use Yiisoft\Yii\Widgets\ContentDecorator;
 
 /** @var Yiisoft\Yii\WebView $this */
 /** @var Psr\Http\Message\ServerRequestInterface $request */
@@ -13,32 +14,29 @@ use Mailery\Brand\Exception\BrandRequiredException;
 
 $this->setTitle('Activity log #' . $event->getId());
 
-?><div class="row">
+?>
+
+<?= ContentDecorator::widget()
+    ->viewFile('@vendor/maileryio/mailery-activity-log/views/default/_layout.php')
+    ->parameters(compact('event', 'csrf'))
+    ->begin(); ?>
+
+<div class="mb-2"></div>
+<div class="row">
     <div class="col-12">
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
-            <h1 class="h3">Activity log #<?= $event->getId(); ?></h1>
-            <div class="btn-toolbar float-right">
-                <div class="btn-toolbar float-right">
-                    <a class="btn btn-sm btn-outline-secondary mx-sm-1 mb-2" href="<?= $url->generate('/activity-log/default/index'); ?>">
-                        Back
-                    </a>
-                </div>
-            </div>
-        </div>
+        <h6 class="font-weight-bold">General details</h6>
     </div>
 </div>
+
 <div class="mb-2"></div>
 <div class="row">
     <div class="col-12">
         <?= DetailView::widget()
-            ->data($event)
+            ->model($event)
             ->options([
                 'class' => 'table detail-view',
             ])
-            ->emptyText('(not set)')
-            ->emptyTextOptions([
-                'class' => 'text-muted',
-            ])
+            ->emptyValue('<span class="text-muted">(not set)</span>')
             ->attributes([
                 [
                     'label' => 'Date',
@@ -102,11 +100,17 @@ $this->setTitle('Activity log #' . $event->getId());
         ?>
     </div>
 </div>
+
 <div class="mb-2"></div>
 <div class="row">
     <div class="col-12">
-        <h2 class="h4">Data changes</h2>
+        <h6 class="font-weight-bold">Data changes</h6>
+    </div>
+</div>
 
+<div class="mb-2"></div>
+<div class="row">
+    <div class="col-12">
         <table class="table">
             <thead>
                 <tr>
@@ -132,3 +136,5 @@ $this->setTitle('Activity log #' . $event->getId());
         </table>
     </div>
 </div>
+
+<?= ContentDecorator::end() ?>
