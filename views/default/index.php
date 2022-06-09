@@ -89,7 +89,7 @@ $this->setTitle('Activity log');
                                 if (($className = $model->getObjectClass()) !== null && class_exists($className)) {
                                     $entity = new $className;
 
-                                    if ($model->getObjectId() && method_exists($entity, 'setId')) {
+                                    if ($model->getObjectId()) {
                                         $entity->setId($model->getObjectId());
                                     }
 
