@@ -4,7 +4,6 @@ namespace Mailery\Activity\Log\Model;
 
 use Cycle\ORM\Heap\Node;
 use Cycle\ORM\Heap\State;
-use Mailery\Web\Widget\DateTimeFormat;
 
 class DataChangeSet
 {
@@ -186,9 +185,7 @@ class DataChangeSet
                     switch (get_class($value)) {
                         case \DateTime::class:
                         case \DateTimeImmutable::class:
-                            return DateTimeFormat::widget()
-                                ->dateTime($value)
-                                ->run();
+                            return $value->format('Y-m-d H:i:s');
                         default:
                             return get_class($value);
                     }
