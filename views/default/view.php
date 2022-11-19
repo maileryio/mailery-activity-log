@@ -3,6 +3,7 @@
 use Mailery\Activity\Log\Entity\Event;
 use Mailery\Web\Widget\DateTimeFormat;
 use Mailery\Web\Widget\EntityViewLink;
+use Mailery\Web\Vue\Directive;
 use Mailery\Brand\Exception\BrandRequiredException;
 use Yiisoft\Yii\DataView\DetailView;
 use Yiisoft\Yii\Widgets\ContentDecorator;
@@ -40,43 +41,43 @@ $this->setTitle('Activity log #' . $event->getId());
             ->attributes([
                 [
                     'label' => 'Date',
-                    'value' => function (Event $data, $index) {
+                    'value' => function (Event $data) {
                         return DateTimeFormat::widget()->dateTime($data->getDate());
                     },
                 ],
                 [
                     'label' => 'User',
-                    'value' => function (Event $data, $index) {
+                    'value' => function (Event $data) {
                         if (($user = $data->getUser()) === null) {
                             return null;
                         }
 
                         return EntityViewLink::widget()
                             ->entity($user)
-                            ->label($user->getUsername());
+                            ->label(Directive::pre($user->getUsername()));
                     },
                 ],
                 [
                     'label' => 'Group',
-                    'value' => function (Event $data, $index) use($entityGroups) {
-                        return $entityGroups->getGroupByKey($data->getGroup())->getLabel();
+                    'value' => function (Event $data) use($entityGroups) {
+                        return Directive::pre($entityGroups->getGroupByKey($data->getGroup())->getLabel());
                     },
                 ],
                 [
                     'label' => 'Action',
-                    'value' => function (Event $data, $index) {
-                        return $data->getAction();
+                    'value' => function (Event $data) {
+                        return Directive::pre($data->getAction());
                     },
                 ],
                 [
                     'label' => 'Object',
-                    'value' => function (Event $data, $index) {
+                    'value' => function (Event $data) {
                         if (($entity = $data->getEntity()) !== null) {
                             try {
                                 return EntityViewLink::widget()
                                     ->entity($entity)
                                     ->reload(true)
-                                    ->label($data->getObjectLabel())
+                                    ->label(Directive::pre($data->getObjectLabel()))
                                     ->routeParams(array_filter([
                                         'brandId' => $data->getBrand()?->getId(),
                                     ]))
@@ -84,12 +85,12 @@ $this->setTitle('Activity log #' . $event->getId());
                             } catch (BrandRequiredException $e) {}
                         }
 
-                        return $data->getObjectLabel();
+                        return Directive::pre($data->getObjectLabel());
                     },
                 ],
                 [
                     'label' => 'Object Id',
-                    'value' => function (Event $data, $index) {
+                    'value' => function (Event $data) {
                         if ($data->getObjectClass() && $data->getObjectId()) {
                             return $data->getObjectClass() . '#' . $data->getObjectId();
                         }
@@ -128,8 +129,8 @@ $this->setTitle('Activity log #' . $event->getId());
 
                     echo '<tr>'
                             . '<td>' . $dataChanges->getField() . '</td>'
-                            . '<td>' . ($valueMask ?? $dataChanges->getValueOld()) . '</td>'
-                            . '<td>' . ($valueMask ?? $dataChanges->getValueNew()) . '</td>'
+                            . '<td>' . ($valueMask ?? Directive::pre($dataChanges->getValueOld())) . '</td>'
+                            . '<td>' . ($valueMask ?? Directive::pre($dataChanges->getValueNew())) . '</td>'
                         . '</tr>';
                 } ?>
             </tbody>

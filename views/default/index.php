@@ -3,6 +3,7 @@
 use Mailery\Activity\Log\Entity\Event;
 use Mailery\Web\Widget\DateTimeFormat;
 use Mailery\Web\Widget\EntityViewLink;
+use Mailery\Web\Vue\Directive;
 use Mailery\Brand\Exception\BrandRequiredException;
 use Yiisoft\Yii\DataView\GridView;
 
@@ -57,9 +58,9 @@ $this->setTitle('Activity log');
                             'value()' => [fn (Event $model) => EntityViewLink::widget()
                                 ->entity($model)
                                 ->label(
-                                    DateTimeFormat::widget()
+                                    Directive::pre(DateTimeFormat::widget()
                                         ->dateTime($model->getDate())
-                                        ->run()
+                                        ->run())
                                 )
                             ],
                         ],
@@ -72,16 +73,16 @@ $this->setTitle('Activity log');
 
                                 return EntityViewLink::widget()
                                     ->entity($user)
-                                    ->label($user->getUsername());
+                                    ->label(Directive::pre($user->getUsername()));
                             }],
                         ],
                         [
                             'label()' => ['Group'],
-                            'value()' => [fn (Event $model) => $entityGroups->getGroupByKey($model->getGroup())->getLabel()],
+                            'value()' => [fn (Event $model) => Directive::pre($entityGroups->getGroupByKey($model->getGroup())->getLabel())],
                         ],
                         [
                             'label()' => ['Action'],
-                            'value()' => [fn (Event $model) => $model->getAction()],
+                            'value()' => [fn (Event $model) => Directive::pre($model->getAction())],
                         ],
                         [
                             'label()' => ['Object'],
@@ -97,7 +98,7 @@ $this->setTitle('Activity log');
                                         return EntityViewLink::widget()
                                             ->entity($entity)
                                             ->reload(true)
-                                            ->label($model->getObjectLabel())
+                                            ->label(Directive::pre($model->getObjectLabel()))
                                             ->routeParams(array_filter([
                                                 'brandId' => $model->getBrand()?->getId(),
                                             ]))
@@ -105,7 +106,7 @@ $this->setTitle('Activity log');
                                     } catch (BrandRequiredException $e) {}
                                 }
 
-                                return $model->getObjectLabel();
+                                return Directive::pre($model->getObjectLabel());
                             }],
                         ],
                     ]);
